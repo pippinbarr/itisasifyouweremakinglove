@@ -1,0 +1,36 @@
+/*
+
+Slider
+Pippin Barr
+
+It is as if you were giving pleasure?
+
+*/
+
+body {
+  height: 100vh;
+  width: 100vw;
+}
+
+#slider {
+  height: 50vh;
+}
+
+.ui-slider {
+  border-color: rgba(120,120,120,1) !important;
+  background: linear-gradient(to right, rgb(150,150,150), rgb(180,180,180)) !important;
+  width: 0.4em !important;
+  border-width: 0.1em !important;
+}
+
+.ui-slider-handle {
+  background: linear-gradient(to right, rgb(220,220,220), rgb(240,240,240)) !important;
+  color: white !important;
+  border-color: rgba(125,125,125,1) !important;
+  border-radius: 100% !important;
+  border-width: 0.1em !important;
+  outline: none !important;
+  width: 1.5em !important;
+  height: 1.5em !important;
+  margin-left: -0.333em !important;
+}
