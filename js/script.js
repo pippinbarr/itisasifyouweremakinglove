@@ -14,7 +14,14 @@ var shiverFrequency = 5;
 var pulsing = false;
 var pulseSize = 52;
 
+var breathSFX;
+
 $(document).ready(function () {
+
+  breathSFX = new Audio('audio/breath-mono.wav');
+  breathSFX.onended = function () {
+    breathSFX.play();
+  }
 
   // Set up the jQuery UI slider
   $( "#slider" ).slider({
@@ -32,6 +39,9 @@ $(document).ready(function () {
   $(window).on('keydown',handleKeyDown);
 
   window.requestAnimationFrame(update);
+
+  $slider = $('#slider');
+
 });
 
 
@@ -51,57 +61,46 @@ function slide(event,ui) {
 function handleKeyDown(event) {
   switch (event.key) {
     case 'a':
-    startShiver();
+    $('#shiver').toggleClass('shiver');
     break;
 
     case 'b':
-    shivering = false;
+    $('#pulse').toggleClass('pulse');
     break;
 
     case 'c':
-    startPulse();
+    $('#twist').toggleClass('twist');
     break;
 
     case 'd':
-    pulsing = false;
+    $('body').toggleClass('gradient');
     break;
+
+    case 'e':
+    $('.ui-slider-handle').toggleClass('knob');
+    break;
+
+    case 'f':
+    $('#blink').animate({
+      opacity: 1
+    },250,function() {
+      $('#blink').animate({
+        opacity: 0
+      },250)
+    });
+
+    case 'g':
+    if (!breathSFX.paused || breathSFX.currentTime) {
+      breathSFX.pause();
+      breathSFX.currentTime = 0;
+    }
+    else {
+      breathSFX.play();
+    }
+
   }
 }
 
-function startShiver() {
-  if (shivering) return;
-  shivering = true;
-  shiver();
-}
-
-function shiver() {
-  $('#slider').effect('shake',{
-    distance: shiverAmount,
-    times: shiverFrequency
-  },function () {
-    if (shivering) {
-      shiver();
-    }
-  });
-}
-
-function startPulse() {
-  $('#slider').addClass('pulse');
-
-  // if (pulsing) return;
-  // pulsing = true;
-  // pulse();
-}
-
-function pulse() {
-  $('#slider').animate({
-    height: pulseSize + 'vh'
-  },function () {
-    if (pulsing) {
-      pulse();
-    }
-  });
-}
 
 // fitSliderToViewport()
 //
