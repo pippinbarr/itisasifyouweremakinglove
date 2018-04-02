@@ -34,3 +34,14 @@ body {
   height: 1.5em !important;
   margin-left: -0.333em !important;
 }
+
+.pulse {
+  animation-name: pulse;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes pulse {
+  to { transform: scale(1.1,1) }
+}
