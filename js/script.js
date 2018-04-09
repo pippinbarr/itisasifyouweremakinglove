@@ -16,6 +16,8 @@ var pulseSize = 52;
 
 var breathSFX;
 
+var selected = 50;
+
 $(document).ready(function () {
 
   breathSFX = new Audio('audio/breath-mono.wav');
@@ -28,14 +30,14 @@ $(document).ready(function () {
       orientation: "vertical",
       min: 0,
       max: 100,
-      value: 50,
+      value: selected,
+      // step: 10,
       slide: slide,
     }).slider('pips', {
       step: 10,
       rest: 'label',
       labels: ['0','','','','','','','','','','1','','','','','','','','','','2','','','','','','','','','','3','','','','','','','','','','4','','','','','','','','','','5','','','','','','','','','','6','','','','','','','','','','7','','','','','','','','','','8','','','','','','','','','','9','','','','','','','','','','10']
     });
-
 
     // This isn't quite working
     $('.ui-slider-pips').not('#slider').unbind('mousedown');
@@ -55,6 +57,8 @@ $(document).ready(function () {
 
 function update() {
   window.requestAnimationFrame(update);
+
+  console.log(selected);
 }
 
 
@@ -62,7 +66,13 @@ function update() {
 //
 // Called when the slider is moved
 function slide(event,ui) {
-  console.log(ui.value);
+  var tens = Math.round(ui.value / 10) * 10;
+  var remainder = Math.abs(ui.value - tens);
+  $('.ui-slider-pip').removeClass('ui-slider-pip-selected');
+  if (remainder <= 3) {
+    selected = tens;
+    $('.ui-slider-pip-' + selected).addClass('ui-slider-pip-selected');
+  }
 }
 
 
@@ -89,16 +99,6 @@ function handleKeyDown(event) {
     break;
 
     case 'f':
-    $('#blink').animate({
-      opacity: 1
-    },250,function() {
-      $('#blink').animate({
-        opacity: 0
-      },250)
-    });
-    break;
-
-    case 'g':
     if (!breathSFX.paused || breathSFX.currentTime) {
       breathSFX.pause();
       breathSFX.currentTime = 0;
