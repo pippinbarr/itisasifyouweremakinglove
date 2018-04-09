@@ -24,13 +24,21 @@ $(document).ready(function () {
   }
 
   // Set up the jQuery UI slider
-  $( "#slider" ).slider({
-    orientation: "vertical",
-    min: 0,
-    max: 100,
-    value: 100,
-    slide: slide,
-  });
+  $("#slider").slider({
+      orientation: "vertical",
+      min: 0,
+      max: 100,
+      value: 50,
+      slide: slide,
+    }).slider('pips', {
+      step: 10,
+      rest: 'label',
+      labels: ['0','','','','','','','','','','1','','','','','','','','','','2','','','','','','','','','','3','','','','','','','','','','4','','','','','','','','','','5','','','','','','','','','','6','','','','','','','','','','7','','','','','','','','','','8','','','','','','','','','','9','','','','','','','','','','10']
+    });
+
+
+    // This isn't quite working
+    $('.ui-slider-pips').not('#slider').unbind('mousedown');
 
   // Fit the slider in the window and handle resizing
   fitSliderToViewport();
@@ -88,6 +96,7 @@ function handleKeyDown(event) {
         opacity: 0
       },250)
     });
+    break;
 
     case 'g':
     if (!breathSFX.paused || breathSFX.currentTime) {

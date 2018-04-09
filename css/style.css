@@ -16,7 +16,18 @@ body {
   height: 50vh;
 }
 
+#instructions {
+  font-family: Helvetica, sans-serif;
+  /* font-weight: bold; */
+  font-size: 2em;
+  transform: translate(30vw,28vh);
+  text-align: center;
+  width: 40vw;
+  /* background-color: green; */
+}
+
 #blink {
+  pointer-events: none;
   position: fixed;
   background-color: black;
   top: 0;
@@ -116,4 +127,41 @@ body {
   0% {background-position:0% 13%}
   50% {background-position:100% 88%}
   100% {background-position:0% 13%}
+}
+
+
+/* Pip styling */
+.ui-slider-pips {
+  color: grey !important;
+  font-weight: normal !important;
+  pointer-events: false;
+  cursor: default !important;
+}
+
+.ui-slider-pips:hover {
+  color: grey !important;
+  font-weight: normal !important;
+  cursor: default !important;
+}
+
+.ui-slider-pip:hover {
+  color: grey !important;
+  font-weight: normal !important;
+  cursor: default !important;
+}
+
+.ui-slider-label:hover {
+  color: grey !important;
+  font-weight: normal !important;
+  cursor: default !important;
+}
+
+.ui-slider-pip-initial {
+  color: grey !important;
+  font-weight: normal !important;
+}
+
+.ui-slider-pip-selected {
+  color: grey !important;
+  font-weight: normal !important;
 }
