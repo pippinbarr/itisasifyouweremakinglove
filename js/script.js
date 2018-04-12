@@ -24,6 +24,8 @@ var previous = lower;
 var slidesRequired = 10;
 var slides = 0;
 
+var erotica = ['submit','commit','success','save'];
+
 $(document).ready(function () {
 
   breathSFX = new Audio('audio/breath-mono.wav');
@@ -34,8 +36,9 @@ $(document).ready(function () {
   toneSFX = new Audio('audio/tone.wav');
 
   setupFlocking();
+  setupAnnyang();
 
-  // Set up the jQuery UI slider
+  // Set up the jQuery UI slider along with its pips
   $("#slider").slider({
     orientation: "vertical",
     min: 0,
@@ -49,22 +52,30 @@ $(document).ready(function () {
     labels: ['0','','','','','','','','','','1','','','','','','','','','','2','','','','','','','','','','3','','','','','','','','','','4','','','','','','','','','','5','','','','','','','','','','6','','','','','','','','','','7','','','','','','','','','','8','','','','','','','','','','9','','','','','','','','','','10']
   });
 
-  // This isn't quite working
+  // This isn't quite working yet, but I'm trying to avoid the ability
+  // to click on pips and slider locations to move the slider.
   $('.ui-slider-pips').not('#slider').unbind('mousedown');
 
   // Fit the slider in the window and handle resizing
   fitSliderToViewport();
   $(window).on('resize',fitSliderToViewport);
 
+  // Listen for keys (for testing)
   $(window).on('keydown',handleKeyDown);
 
+  // Start the update loop
   window.requestAnimationFrame(update);
 
+  // Remember the slider
   $slider = $('#slider');
 
+  // Generate our first instruction
   generateInstruction();
 });
 
+// setupFlocking()
+//
+// Set up a basic tone
 function setupFlocking() {
   // To use flocking we have to initialise the (sound) environment
   var environment = flock.init();
@@ -81,7 +92,24 @@ function setupFlocking() {
   });
 }
 
+// setupAnnyang()
+//
+// We set up annyang to listen for individual words and then we'll
+// check those words against our list of erotic bedroom talk
+function setupAnnyang() {
+  if (annyang) {
+    var commands = {
+      // If annyang hears "red" it will call makeDivsRed()
+      ':word': handleUserSpeech,
+    };
+    annyang.addCommands(commands);
+    annyang.start();
+  }
+}
 
+// update()
+//
+// Called every frame
 function update() {
   window.requestAnimationFrame(update);
 
@@ -121,6 +149,9 @@ function slide(event,ui) {
   }
 }
 
+// generateInstruction()
+//
+// Choose a lower and upper bound for the range and tell the user
 function generateInstruction() {
   lower = Math.floor((Math.random() * (MAX - 10))/10) * 10;
   upper = Math.floor((lower + 10 + Math.random() * (MAX - lower))/10) * 10;
@@ -129,6 +160,9 @@ function generateInstruction() {
   $('#instructions').text('Slide between ' + lower/10 + ' and ' + upper/10);
 }
 
+// findSelected()
+//
+// Work out which pip is selected right now (if any)
 function findSelected(ui) {
   var tens = Math.round(ui.value / 10) * 10;
   var remainder = Math.abs(ui.value - tens);
@@ -142,7 +176,34 @@ function findSelected(ui) {
   }
 }
 
+// handleUserSpeech()
+//
+// Handles user speech
+function handleUserSpeech(word) {
+  word = word.toLowerCase();
+  console.log(word);
+  if (erotica.indexOf(word) !== -1) {
+    console.log("Erotic word.");
+  }
+  else {
+    console.log("Non-erotic word.");
+  }
+}
 
+// fitSliderToViewport()
+//
+// Called on resize. Moves the slider to the centre of the viewport.
+function fitSliderToViewport() {
+  $('#slider').offset({
+    top: $(window).height()/2 - $('#slider').height()/2,
+    left: $(window).width()/2 - $('#slider').width()/2,
+  })
+}
+
+
+// handleKeyDown()
+//
+// Just some key-based triggers for testing
 function handleKeyDown(event) {
   switch (event.key) {
     case 'a':
@@ -175,15 +236,4 @@ function handleKeyDown(event) {
     }
 
   }
-}
-
-
-// fitSliderToViewport()
-//
-// Called on resize. Moves the slider to the centre of the viewport.
-function fitSliderToViewport() {
-  $('#slider').offset({
-    top: $(window).height()/2 - $('#slider').height()/2,
-    left: $(window).width()/2 - $('#slider').width()/2,
-  })
 }
