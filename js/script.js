@@ -7,7 +7,7 @@ Sexy?
 
 **********************************************/
 
-var MAX = 100;
+var MAX = 10;
 var MIN = 0;
 
 var breathSFX;
@@ -16,13 +16,15 @@ var toneSFX;
 var synth;
 var baseFrequency = 110;
 
-var selected = 50;
+var selected = 5;
 
-var upper = 70;
-var lower = 40;
+var upper = 7;
+var lower = 4;
 var previous = lower;
 var slidesRequired = 10;
 var slides = 0;
+
+var lastValue = selected;
 
 var erotica = ['submit','commit','success','save'];
 
@@ -42,19 +44,20 @@ $(document).ready(function () {
   $("#slider").slider({
     orientation: "vertical",
     min: 0,
-    max: 100,
+    max: 10,
     value: selected,
     // step: 10,
     slide: slide,
-  }).slider('pips', {
-    step: 10,
-    rest: 'label',
-    labels: ['0','','','','','','','','','','1','','','','','','','','','','2','','','','','','','','','','3','','','','','','','','','','4','','','','','','','','','','5','','','','','','','','','','6','','','','','','','','','','7','','','','','','','','','','8','','','','','','','','','','9','','','','','','','','','','10']
+  })
+  .slider('pips', {
+    step: 1,
+    // rest: 'label',
+    // labels: ['0','','','','','','','','','','1','','','','','','','','','','2','','','','','','','','','','3','','','','','','','','','','4','','','','','','','','','','5','','','','','','','','','','6','','','','','','','','','','7','','','','','','','','','','8','','','','','','','','','','9','','','','','','','','','','10']
   });
 
   // This isn't quite working yet, but I'm trying to avoid the ability
   // to click on pips and slider locations to move the slider.
-  $('.ui-slider-pips').not('#slider').unbind('mousedown');
+  // $('.ui-slider-pips').not('#slider').unbind('mousedown');
 
   // Fit the slider in the window and handle resizing
   fitSliderToViewport();
@@ -71,6 +74,10 @@ $(document).ready(function () {
 
   // Generate our first instruction
   generateInstruction();
+
+  setTimeout(function () {
+    createAboutDialog();
+  },2000);
 });
 
 // setupFlocking()
@@ -83,13 +90,35 @@ function setupFlocking() {
   // ... and start it.
   environment.start();
 
+  // synth = flock.synth({
+  //   synthDef: {
+  //     id: "carrier", // A unique id
+  //     ugen: "flock.ugen.pinkNoise", // The kind of synth
+  //     mul: {
+  //       id: "mod",                      // Name this one "mod"
+  //       ugen: "flock.ugen.sinOsc",      // Also of type Sine Oscillator
+  //       freq: 0.1
+  //     }
+  //   },
+  // });
+
+  // synth = flock.synth({
+  //   synthDef: {
+  //     id: "carrier", // A unique id
+  //     ugen: "flock.ugen.pinkNoise", // The kind of synth
+  //     mul: 0
+  //   },
+  // });
+
   synth = flock.synth({
     synthDef: {
       id: "carrier", // A unique id
-      ugen: "flock.ugen.sin", // The kind of synth
-      freq: 110 // The frequency of the tone
+      ugen: "flock.ugen.sinOsc", // The kind of synth
+      freq: 220
     },
   });
+
+
 }
 
 // setupAnnyang()
@@ -113,11 +142,18 @@ function setupAnnyang() {
 function update() {
   window.requestAnimationFrame(update);
 
+  // var sliderValue = $('#slider').slider('option','value');
+  // var newMul = Math.abs(sliderValue - lastValue)/5;
+  // synth.set({
+  //     "carrier.mul": newMul,
+  // });
+  // lastValue = sliderValue;
+
   // Set the frequency of our synth to the new frequency
   if (selected) {
-    // synth.set({
-    //   "carrier.freq": baseFrequency + 27.5 * selected/10,
-    // });
+    synth.set({
+      "carrier.freq": baseFrequency + 27.5 * selected/10,
+    });
   }
 }
 
@@ -126,20 +162,23 @@ function update() {
 //
 // Called when the slider is moved
 function slide(event,ui) {
+
+
+
   findSelected(ui);
 
   if (selected === upper && previous === lower) {
     previous = upper;
     slides++;
     synth.set({
-      "carrier.freq": baseFrequency + 27.5 * selected/10,
+      "carrier.freq": baseFrequency + 27.5 * selected,
     });
   }
   else if (selected === lower && previous === upper) {
     previous = lower;
     slides++;
     synth.set({
-      "carrier.freq": baseFrequency + 27.5 * selected/10,
+      "carrier.freq": baseFrequency + 27.5 * selected,
     });
   }
 
@@ -153,27 +192,28 @@ function slide(event,ui) {
 //
 // Choose a lower and upper bound for the range and tell the user
 function generateInstruction() {
-  lower = Math.floor((Math.random() * (MAX - 10))/10) * 10;
-  upper = Math.floor((lower + 10 + Math.random() * (MAX - lower))/10) * 10;
+  lower = Math.floor((Math.random() * (MAX - 1)));
+  upper = Math.floor((lower + 1 + Math.random() * (MAX - lower)));
   previous = lower;
 
-  $('#instructions').text('Slide between ' + lower/10 + ' and ' + upper/10);
+  $('#instructions').text('Slide between ' + lower + ' and ' + upper);
 }
 
 // findSelected()
 //
 // Work out which pip is selected right now (if any)
 function findSelected(ui) {
-  var tens = Math.round(ui.value / 10) * 10;
-  var remainder = Math.abs(ui.value - tens);
+  // var tens = Math.round(ui.value / 10) * 10;
+  // var remainder = Math.abs(ui.value - tens);
   $('.ui-slider-pip').removeClass('ui-slider-pip-selected');
-  if (remainder <= 3) {
-    selected = tens;
-    $('.ui-slider-pip-' + selected).addClass('ui-slider-pip-selected');
-  }
-  else {
-    selected = undefined;
-  }
+  // if (remainder <= 3) {
+    // selected = tens;
+    selected = ui.value;
+    // $('.ui-slider-pip-' + selected).addClass('ui-slider-pip-selected');
+  // }
+  // else {
+    // selected = undefined;
+  // }
 }
 
 // handleUserSpeech()

@@ -1,0 +1,170 @@
+/*
+
+Slider
+Pippin Barr
+
+It is as if you were giving pleasure?
+
+*/
+
+body {
+  height: 100vh;
+  width: 100vw;
+}
+
+#slider {
+  height: 50vh;
+}
+
+#instructions {
+  font-family: Helvetica, sans-serif;
+  /* font-weight: bold; */
+  font-size: 2em;
+  transform: translate(30vw,28vh);
+  text-align: center;
+  width: 40vw;
+  /* background-color: green; */
+}
+
+/* Basic restyling of slider to appear more vanilla */
+
+.ui-slider {
+  border-color: rgba(120,120,120,1) !important;
+  background: linear-gradient(to right, rgb(150,150,150), rgb(180,180,180)) !important;
+  width: 0.4em !important;
+  border-width: 0.1em !important;
+}
+
+.ui-slider-handle {
+  background: linear-gradient(to right, rgb(220,220,220), rgb(240,240,240)) !important;
+  color: white !important;
+  border-color: rgba(125,125,125,1) !important;
+  border-radius: 100% !important;
+  border-width: 0.1em !important;
+  outline: none !important;
+  width: 1.5em !important;
+  height: 1.5em !important;
+  margin-left: -0.333em !important;
+}
+
+/* Knob animation */
+
+.knob {
+  animation-name: knob;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes knob {
+  from { background: orange; }
+  to { background: red; }
+}
+
+/* Pulsing animation */
+
+.pulse {
+  animation-name: pulse;
+  animation-duration: 0.5s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes pulse {
+  to { transform: scale(1.2,1.0) }
+}
+
+/* Shivering animation */
+
+.shiver {
+  animation-name: shiver;
+  animation-duration: 0.01s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes shiver {
+  from { transform: translateX(-2px)}
+  to { transform: translateX(2px) }
+}
+
+/* Twisting animation */
+
+.twist {
+  animation-name: twist;
+  animation-duration: 0.01s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transform-origin: bottom center;
+}
+
+@keyframes twist {
+  from { transform: rotate(1deg)}
+  to { transform: rotate(-1deg) }
+}
+
+/* Background animation */
+
+.gradient {
+  background: linear-gradient(red, yellow);
+  background-size: 400% 400%;
+  animation: gradient 1s ease infinite;
+}
+
+@keyframes gradient {
+  0% {background-position:0% 13%}
+  50% {background-position:100% 88%}
+  100% {background-position:0% 13%}
+}
+
+
+/* Pip styling */
+
+.ui-slider-pips {
+  color: grey !important;
+  font-weight: normal !important;
+  pointer-events: false;
+  cursor: default !important;
+}
+
+.ui-slider-pips:hover {
+  color: grey !important;
+  font-weight: normal !important;
+  cursor: default !important;
+}
+
+.ui-slider-pip:hover {
+  color: grey !important;
+  font-weight: normal !important;
+  cursor: default !important;
+}
+
+.ui-slider-label:hover {
+  color: grey !important;
+  font-weight: normal !important;
+  cursor: default !important;
+}
+
+.ui-slider-pip-initial {
+  color: grey !important;
+  font-weight: normal !important;
+}
+
+.ui-slider-pip-selected {
+  color: grey !important;
+  font-weight: bold !important;
+}
+
+.ui-slider-pip-selected .ui-slider-label:hover {
+  font-weight: bold !important;
+}
+
+.ui-slider-pip:hover .ui-slider-label {
+  color: grey !important;
+  font-weight: normal !important;
+}
+
+.ui-slider-pip:hover .ui-slider-pip-selected .ui-slider-label {
+  color: grey !important;
+  font-weight: bold !important;
+}
