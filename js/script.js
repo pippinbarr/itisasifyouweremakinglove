@@ -20,12 +20,13 @@ var selected = 5;
 
 var upper = 7;
 var lower = 4;
-var previous = lower;
 var target = lower;
 var slidesRequired = 10;
 var slides = 0;
 
-var selectionTimer = 0;
+const SELECTED_MINIMUM_FRAMES = 5;
+var currentlySelected = false;
+var selectedTimer = 0;
 
 var progress = 0;
 var lastValue = selected;
@@ -35,16 +36,10 @@ $(document).ready(function () {
   createApplication();
   setTarget();
 
-  // Fit the slider in the window and handle resizing
-  fitSliderToViewport();
   $(window).on('resize',fitSliderToViewport);
 
   // Start the update loop
   window.requestAnimationFrame(update);
-
-  setTimeout(function () {
-    // createAboutDialog();
-  },2000);
 });
 
 function createApplication() {
@@ -83,6 +78,7 @@ function createApplication() {
     labels: ['0','1','2','3','4','5','6','7','8','9','10'],
     // ⬅
   });
+  fitSliderToViewport();
 
   $instruction = $('#instruction');
 
@@ -103,7 +99,33 @@ function createApplication() {
 // Called every frame
 function update() {
   window.requestAnimationFrame(update);
-  selectionTimer++;
+  if (currentlySelected) {
+    selectedTimer++;
+    if (selectedTimer > SELECTED_MINIMUM_FRAMES) {
+      slides++;
+
+      if (target == upper) {
+        target = lower;
+      }
+      else {
+        target = upper;
+      }
+
+      highlightTarget();
+      selectedTimer = 0;
+      currentlySelected = false;
+    }
+
+    if (slides >= slidesRequired) {
+      slides = 0;
+      setTarget();
+      progress += 0.1;
+      $progress.progressbar({
+        value: progress * 100
+      })
+    }
+  }
+
 }
 
 
@@ -113,32 +135,13 @@ function update() {
 function slide(event,ui) {
 
   findSelected(ui);
+
   if (selected == target) {
-    if (target == upper) {
-      target = lower;
-    }
-    else {
-      target = upper;
-    }
-    $instruction.text('Set me to ' + target);
+    currentlySelected = true;
   }
-
-  if (selected === upper && previous === lower) {
-    previous = upper;
-    slides++;
-  }
-  else if (selected === lower && previous === upper) {
-    previous = lower;
-    slides++;
-  }
-
-  if (slides >= slidesRequired) {
-    slides = 0;
-    setTarget();
-    progress += 0.1;
-    $progress.progressbar({
-      value: progress * 100
-    })
+  else {
+    currentlySelected = false;
+    selectedTimer = 0;
   }
 }
 
@@ -149,15 +152,31 @@ function slide(event,ui) {
 function setTarget() {
   lower = Math.floor((Math.random() * (MAX - 1)));
   upper = Math.floor((lower + 1 + Math.random() * (MAX - lower)));
-  previous = lower;
+  while (upper == selected) {
+    upper = Math.floor((lower + 1 + Math.random() * (MAX - lower)));
+  }
   target = upper;
-  console.log("Setting target to ",target);
   highlightTarget();
 }
 
 
 function highlightTarget() {
-  $instruction.text("Set me to " + target + ".");
+  // Issue instruction
+  $instruction.text('Set me to ' + target + '.');
+
+  // Clear formatting of pips
+  $('.ui-slider-pip').css({
+    fontWeight: 'normal',
+    border: 'none',
+    backgroundColor: 'transparent'
+  });
+
+  // Highlight the target pip
+  $('.ui-slider-pip-' + target).css({
+    // fontWeight: 'bold',
+    border: 'solid 1px black',
+    backgroundColor: 'white'
+  });
 }
 
 

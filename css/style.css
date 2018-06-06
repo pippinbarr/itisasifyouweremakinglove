@@ -206,3 +206,11 @@ button.ui-button.ui-state-active:hover {
   font-weight: normal !importat;
   /* display: none !important; */
 }
+
+.ui-slider-pip-selected {
+  font-weight: normal !important;
+}
+
+.ui-slider-pip-initial {
+  font-weight: normal !important;
+}
