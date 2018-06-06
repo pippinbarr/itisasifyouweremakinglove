@@ -91,29 +91,3 @@ function createDialog(div, options, random, stationary) {
 
   return dialog;
 }
-
-
-
-/*******************************************************
-********************************************************
-SELECT MENU
-********************************************************
-********************************************************/
-
-function createSelectMenu (_num) {
-  var menu = $('<select style="z-index: 100"></select>');
-  var correct = _.random(0,_num-1);
-  var correctItem;
-  for (var i = 0; i < _num; i++) {
-    var text = technologies[_.random(0,technologies.length-1)];
-    var option = $('<option>'+text+'</option>');
-    if (i == correct) {
-      menu.data('correct',text);
-    }
-    menu.append(option);
-  }
-
-  menu.data('type',TYPE.SELECTMENU);
-
-  return menu;
-}

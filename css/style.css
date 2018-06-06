@@ -12,14 +12,39 @@ body {
   outline: none;
 }
 
-#gameContainer {
-  max-width: 480px;
-  height: 320px;
-  cursor: none;
+#sliderWrapper {
+  margin-top: 1em;
+  margin-bottom: 1.5em;
 }
 
-#wrapper {
-  margin: 0;
+#slider {
+  height: 30vh;
+}
+
+#feedbackBox {
+  width: 100%;
+  border-top: solid 2px black;
+  border-left: solid 2px black;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  margin-bottom: 1em;
+  height: 4em;
+  overflow-y: hidden;
+}
+
+#feedback {
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 1em;
+  padding: 2px;
+}
+
+#progress {
+  background-color: white;
+  border-top: solid 2px black;
+  border-left: solid 2px black;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  height: 1.5em;
 }
 
 
@@ -121,118 +146,6 @@ button.ui-button.ui-state-active:hover {
 
 /* ORIGINAL STYLE */
 
-body {
-  height: 100vh;
-  width: 100vw;
-}
-
-#slider {
-  height: 30vh;
-}
-
-#instructions {
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  /* font-weight: bold; */
-  font-size: 1em;
-  transform: translate(30vw,40vh);
-  text-align: center;
-  width: 40vw;
-  /* background-color: green; */
-}
-
-/* Basic restyling of slider to appear more vanilla */
-
-
-
-/*
-.ui-slider {
-  border-color: rgba(120,120,120,1) !important;
-  background: linear-gradient(to right, rgb(150,150,150), rgb(180,180,180)) !important;
-  width: 0.4em !important;
-  border-width: 0.1em !important;
-}
-
-.ui-slider-handle {
-  background: linear-gradient(to right, rgb(220,220,220), rgb(240,240,240)) !important;
-  color: white !important;
-  border-color: rgba(125,125,125,1) !important;
-  border-radius: 100% !important;
-  border-width: 0.1em !important;
-  outline: none !important;
-  width: 1.5em !important;
-  height: 1.5em !important;
-  margin-left: -0.333em !important;
-} */
-
-/* Knob animation */
-
-.knob {
-  animation-name: knob;
-  animation-duration: 0.5s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-@keyframes knob {
-  from { background: orange; }
-  to { background: red; }
-}
-
-/* Pulsing animation */
-
-.pulse {
-  animation-name: pulse;
-  animation-duration: 0.5s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-@keyframes pulse {
-  to { transform: scale(1.2,1.0) }
-}
-
-/* Shivering animation */
-
-.shiver {
-  animation-name: shiver;
-  animation-duration: 0.01s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
-@keyframes shiver {
-  from { transform: translateX(-2px)}
-  to { transform: translateX(2px) }
-}
-
-/* Twisting animation */
-
-.twist {
-  animation-name: twist;
-  animation-duration: 0.01s;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-  transform-origin: bottom center;
-}
-
-@keyframes twist {
-  from { transform: rotate(1deg)}
-  to { transform: rotate(-1deg) }
-}
-
-/* Background animation */
-
-.gradient {
-  background: linear-gradient(red, yellow);
-  background-size: 400% 400%;
-  animation: gradient 1s ease infinite;
-}
-
-@keyframes gradient {
-  0% {background-position:0% 13%}
-  50% {background-position:100% 88%}
-  100% {background-position:0% 13%}
-}
 
 
 /* Slider styling */
