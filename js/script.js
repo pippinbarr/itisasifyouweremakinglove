@@ -33,7 +33,7 @@ var lastValue = selected;
 
 $(document).ready(function () {
 
-  createApplication();
+  createApp();
   setTarget();
 
   $(window).on('resize',fitSliderToViewport);
@@ -42,13 +42,13 @@ $(document).ready(function () {
   window.requestAnimationFrame(update);
 });
 
-function createApplication() {
-
+function createApp() {
   // Create app as a dialog
   $app = $('#app');
   $app.dialog({
     title: 'It is as if you were making love',
-    width: '80vw',
+    // width: '80vw',
+    width: '320px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
     resizable: false,
@@ -91,6 +91,45 @@ function createApplication() {
   $progress.progressbar({
     value: progress*100
   });
+
+  $talk = $('<div id="talk"></div>');
+  $talk.append('<p id="talk-request">Tell me that you love me</p>');
+  $talk.append('<input id="talk-input"></input>');
+  $talk.dialog({
+    title: 'Input required',
+    width: '340px',
+    height: 'auto',
+    position: { my: "center", at: "center", of: window },
+    resizable: false,
+    draggable: false,
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      Submit: function () {
+        if ($('#talk-input').val() === 'I love you') {
+          setTimeout(function () {
+            $('#talk-input').val('');
+            $talk.dialog('close');
+          },300);
+        }
+        else {
+          $talk.parent().effect('shake',{
+            direction: 'left',
+            distance: 3,
+            times: 5
+          });
+          $('#talk-input').val('');
+        }
+      }
+    },
+    closeOnEscape: false
+  });
+  $talk.parent().find(".ui-dialog-titlebar-close").hide();
+
+  setTimeout(function() {
+    $slider.trigger('mouseup');
+    $talk.dialog('open');
+  },10000);
 
 }
 

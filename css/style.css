@@ -8,6 +8,10 @@ body {
   font-family: sans-serif;
 }
 
+input {
+  width: 100%;
+}
+
 :focus {
   outline: none;
 }
@@ -18,7 +22,8 @@ body {
 }
 
 #slider {
-  height: 30vh;
+  /* height: 30vh; */
+  height: 200px;
 }
 
 .textBox {
