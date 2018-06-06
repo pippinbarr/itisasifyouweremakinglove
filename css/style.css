@@ -21,6 +21,30 @@ body {
   height: 30vh;
 }
 
+.textBox {
+  width: 100%;
+  border-top: solid 2px black;
+  border-left: solid 2px black;
+  border-right: 2px solid white;
+  border-bottom: 2px solid white;
+  margin-bottom: 1em;
+  overflow-y: hidden;
+}
+
+#outputBox {
+  height: 3em;
+}
+
+.text {
+  font-family: "MS Sans Serif", Arial, sans-serif;
+  font-size: 1em;
+  padding: 2px;
+}
+
+#instructionBox {
+  height: 1.5em;
+}
+
 #feedbackBox {
   width: 100%;
   border-top: solid 2px black;
@@ -178,5 +202,7 @@ button.ui-button.ui-state-active:hover {
 }
 
 .ui-slider-pips .ui-slider-label {
-  display: none !important;
+  color: black !important;
+  font-weight: normal !importat;
+  /* display: none !important; */
 }

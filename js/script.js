@@ -21,35 +21,19 @@ var selected = 5;
 var upper = 7;
 var lower = 4;
 var previous = lower;
+var target = lower;
 var slidesRequired = 10;
 var slides = 0;
 
-var lastValue = selected;
+var selectionTimer = 0;
 
-var erotica = ['submit','commit','success','save'];
+var progress = 0;
+var lastValue = selected;
 
 $(document).ready(function () {
 
   createApplication();
-
-  // Set up the jQuery UI slider along with its pips
-  // $("#slider").slider({
-  //   orientation: "vertical",
-  //   min: 0,
-  //   max: 10,
-  //   value: selected,
-  //   // step: 10,
-  //   slide: slide,
-  // })
-  // .slider('pips', {
-  //   step: 1,
-  //   // rest: 'label',
-  //   // labels: ['0','','','','','','','','','','1','','','','','','','','','','2','','','','','','','','','','3','','','','','','','','','','4','','','','','','','','','','5','','','','','','','','','','6','','','','','','','','','','7','','','','','','','','','','8','','','','','','','','','','9','','','','','','','','','','10']
-  // });
-
-  // This isn't quite working yet, but I'm trying to avoid the ability
-  // to click on pips and slider locations to move the slider.
-  // $('.ui-slider-pips').not('#slider').unbind('mousedown');
+  setTarget();
 
   // Fit the slider in the window and handle resizing
   fitSliderToViewport();
@@ -57,12 +41,6 @@ $(document).ready(function () {
 
   // Start the update loop
   window.requestAnimationFrame(update);
-
-  // Remember the slider
-  // $slider = $('#slider');
-
-  // Generate our first instruction
-  generateInstruction();
 
   setTimeout(function () {
     // createAboutDialog();
@@ -98,19 +76,26 @@ function createApplication() {
   });
   $slider.slider('pips',{
     step: 1,
-    labels: ['1','2','3','4','5','6','7','8','9','10']
+    first: 'label',
+    last: 'label',
+    rest: 'label',
+    // labels: ['<–'],
+    labels: ['0','1','2','3','4','5','6','7','8','9','10'],
+    // ⬅
   });
 
-  // Set up the feedback panel
-  $feedback = $('#feedback');
-  $feedback.text('That feels so good baby oh my god you\'re the one');
+  $instruction = $('#instruction');
+
+  $output = $('#output');
+  $output.text('That feels good.');
 
   // Set up the progress bar
   $progress = $('#progress');
   $progress.progressbar();
   $progress.progressbar({
-    value: 37
+    value: progress*100
   });
+
 }
 
 // update()
@@ -118,6 +103,7 @@ function createApplication() {
 // Called every frame
 function update() {
   window.requestAnimationFrame(update);
+  selectionTimer++;
 }
 
 
@@ -127,6 +113,15 @@ function update() {
 function slide(event,ui) {
 
   findSelected(ui);
+  if (selected == target) {
+    if (target == upper) {
+      target = lower;
+    }
+    else {
+      target = upper;
+    }
+    $instruction.text('Set me to ' + target);
+  }
 
   if (selected === upper && previous === lower) {
     previous = upper;
@@ -139,36 +134,38 @@ function slide(event,ui) {
 
   if (slides >= slidesRequired) {
     slides = 0;
-    generateInstruction();
+    setTarget();
+    progress += 0.1;
+    $progress.progressbar({
+      value: progress * 100
+    })
   }
 }
+
 
 // generateInstruction()
 //
 // Choose a lower and upper bound for the range and tell the user
-function generateInstruction() {
+function setTarget() {
   lower = Math.floor((Math.random() * (MAX - 1)));
   upper = Math.floor((lower + 1 + Math.random() * (MAX - lower)));
   previous = lower;
-
-  $('#instructions').text('Slide between ' + lower + ' and ' + upper);
+  target = upper;
+  console.log("Setting target to ",target);
+  highlightTarget();
 }
+
+
+function highlightTarget() {
+  $instruction.text("Set me to " + target + ".");
+}
+
 
 // findSelected()
 //
 // Work out which pip is selected right now (if any)
 function findSelected(ui) {
-  // var tens = Math.round(ui.value / 10) * 10;
-  // var remainder = Math.abs(ui.value - tens);
-  $('.ui-slider-pip').removeClass('ui-slider-pip-selected');
-  // if (remainder <= 3) {
-  // selected = tens;
   selected = ui.value;
-  // $('.ui-slider-pip-' + selected).addClass('ui-slider-pip-selected');
-  // }
-  // else {
-  // selected = undefined;
-  // }
 }
 
 

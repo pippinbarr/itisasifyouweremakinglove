@@ -21,13 +21,6 @@ Sexy.
   <link rel="stylesheet" type="text/css" href="css/style.css" />
   <link rel="stylesheet" type="text/css" href="css/jquery-ui-slider-pips.css" />
 
-
-  <!-- Include annyang! for speech input -->
-  <script src="//cdnjs.cloudflare.com/ajax/libs/annyang/2.6.0/annyang.min.js"></script>
-
-  <!-- Include flocking for audio -->
-  <script src="js/flocking-all.min.js"></script>
-
   <!-- Include jQuery -->
   <script src="js/jquery.min.js"></script>
 
@@ -61,10 +54,17 @@ Sexy.
       <div id="slider">
       </div>
     </div>
-    <div id="feedbackBox">
-      <div id="feedback">
+    Instruction:
+    <div class="textBox" id="instructionBox">
+      <div class="text" id="instruction">
       </div>
     </div>
+    Output:
+    <div class="textBox" id="outputBox">
+      <div class="text" id="output">
+      </div>
+    </div>
+    Progress:
     <div id="progress">
     </div>
   </div>
