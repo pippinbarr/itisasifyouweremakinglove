@@ -5,7 +5,19 @@ body {
   word-wrap: break-word;
   margin: 0;
   overflow: hidden;
-  font-family: sans-serif;
+  font-family: "MS Sans Serif", Arial, sans-serif;
+}
+
+#title-screen {
+  margin: auto;
+  text-align: center;
+  margin-top: 40vh;
+  font-size: 2em;
+  font-weight: bold;
+  color: white;
+  border: 1px solid white;
+  width: 80%;
+  padding: 0.5em;
 }
 
 input {

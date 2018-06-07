@@ -33,14 +33,31 @@ var lastValue = selected;
 
 $(document).ready(function () {
 
+  loadSounds();
   createApp();
-  setTarget();
+  createInputDialog();
 
-  $(window).on('resize',fitSliderToViewport);
+  setTimeout(function() {
+    // showInputDialog();
+  },1000);
+
+  // $(window).on('resize',fitSliderToViewport);
 
   // Start the update loop
   window.requestAnimationFrame(update);
+
+  // $('#title-screen').hide();
+  // $('#title-screen').fadeIn(2000,function () {
+  //   setTimeout(openApp,3500);
+  // });
+  // startupSFX.play();
+
+  openApp();
+
+
 });
+
+
 
 function createApp() {
   // Create app as a dialog
@@ -53,7 +70,7 @@ function createApp() {
     position: { my: "center", at: "center", of: window },
     resizable: false,
     draggable: false,
-    autoOpen: true,
+    autoOpen: false,
     buttons: {},
     closeOnEscape: false
   });
@@ -92,6 +109,22 @@ function createApp() {
     value: progress*100
   });
 
+}
+
+function openApp() {
+  $app.dialog('open');
+  chimesSFX.play();
+  music.play();
+}
+
+function showInputDialog() {
+  $slider.trigger('mouseup');
+  $talk.dialog('open');
+  chimesSFX.play();
+}
+
+
+function createInputDialog() {
   $talk = $('<div id="talk"></div>');
   $talk.append('<p id="talk-request">Tell me that you love me</p>');
   $talk.append('<input id="talk-input"></input>');
@@ -106,31 +139,34 @@ function createApp() {
     modal: true,
     buttons: {
       Submit: function () {
-        if ($('#talk-input').val() === 'I love you') {
-          setTimeout(function () {
-            $('#talk-input').val('');
-            $talk.dialog('close');
-          },300);
-        }
-        else {
-          $talk.parent().effect('shake',{
-            direction: 'left',
-            distance: 3,
-            times: 5
-          });
-          $('#talk-input').val('');
-        }
+        setTimeout(function () {
+          $talk.dialog('close');
+        },300);
+      }
+    },
+    beforeOpen: function () {
+      chimesSFX.play();
+    },
+    beforeClose: function () {
+      if ($('#talk-input').val() === 'I love you') {
+        $('#talk-input').val('');
+        dingSFX.play();
+        return true;
+      }
+      else {
+        $('#talk-input').val('');
+        negativeSFX.play();
+        $talk.parent().effect('shake',{
+          direction: 'left',
+          distance: 3,
+          times: 5
+        });
+        return false;
       }
     },
     closeOnEscape: false
   });
   $talk.parent().find(".ui-dialog-titlebar-close").hide();
-
-  setTimeout(function() {
-    $slider.trigger('mouseup');
-    $talk.dialog('open');
-  },10000);
-
 }
 
 // update()
@@ -142,6 +178,8 @@ function update() {
     selectedTimer++;
     if (selectedTimer > SELECTED_MINIMUM_FRAMES) {
       slides++;
+
+      clickSFX.play();
 
       if (target == upper) {
         target = lower;
@@ -196,6 +234,8 @@ function setTarget() {
   }
   target = upper;
   highlightTarget();
+
+  notifySFX.play();
 }
 
 
@@ -235,4 +275,28 @@ function fitSliderToViewport() {
     // top: $(window).height()/2 - $('#slider').height()/2,
     left: $(window).width()/2 - $('#slider').width()/2,
   })
+}
+
+
+
+
+
+
+// Loading the sound effects
+
+function loadSounds() {
+  music = new Howl({
+    src: ['audio/music.wav'],
+    loop: true,
+    volume: 0.5
+  });
+  chimesSFX = new Audio('audio/chimes.wav');
+  dingSFX = new Audio('audio/ding.wav');
+  negativeSFX = new Audio('audio/chord.wav');
+  fanfareSFX = new Audio('audio/tada.wav');
+  clickSFX = new Audio('audio/start.wav');
+  climaxAlertSFX = new Audio('audio/ir_inter.wav');
+  startupSFX = new Audio('audio/startup.wav');
+  shutdownSFX = new Audio('audio/shutdown.wav');
+  notifySFX = new Audio('audio/notify.wav');
 }
