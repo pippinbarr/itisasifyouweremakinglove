@@ -38,6 +38,7 @@ $(document).ready(function () {
   createInputDialog();
 
   openApp();
+  // showInputDialog();
 
   // $('#app-icon').on('click', function () {
   //   setTimeout(function () {
@@ -111,7 +112,12 @@ function createApp() {
     value: progress*100
   });
 
-
+  $('#music-on').on('click',function () {
+    music.play();
+  });
+  $('#music-off').on('click',function () {
+    music.pause();
+  });
 
 }
 

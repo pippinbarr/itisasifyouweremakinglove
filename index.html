@@ -19,6 +19,7 @@ Sexy.
   <title>It is as if you were making love</title>
 
   <link rel="stylesheet" type="text/css" href="css/style.css" />
+
   <link rel="stylesheet" type="text/css" href="css/jquery-ui-slider-pips.css" />
 
   <!-- Include jQuery -->
@@ -39,7 +40,6 @@ Sexy.
   <script src="js/howler.core.min.js"></script>
 
   <!-- Include the script file -->
-  <script src="js/ui-generators.js"></script>
   <script src="js/script.js"></script>
 
 </head>
@@ -66,7 +66,12 @@ Sexy.
         </div>
       </div>
       Progress:
-      <div id="progress">
+      <div id="progress" class="textBox">
+      </div>
+      Mood music:
+      <div id="music-radios">
+        <label for="music-on"><input type="radio" name="music-radios" id="music-on">On</label>
+        <label for="music-off"><input type="radio" name="music-radios" id="music-off" checked="checked">Off</label>
       </div>
     </div>
 
