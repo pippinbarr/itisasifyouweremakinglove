@@ -37,26 +37,23 @@ $(document).ready(function () {
   createApp();
   createInputDialog();
 
-  setTimeout(function() {
-    // showInputDialog();
-  },1000);
+  openApp();
 
-  // $(window).on('resize',fitSliderToViewport);
+  // $('#app-icon').on('click', function () {
+  //   setTimeout(function () {
+  //     $('#title-screen').fadeIn(250);
+  //     setTimeout(function () {
+  //       openApp();
+  //       $('#title-screen').hide();
+  //     },5000);
+  //   },500);
+  //   startupSFX.play();
+  // });
 
   // Start the update loop
   window.requestAnimationFrame(update);
 
-  // $('#title-screen').hide();
-  // $('#title-screen').fadeIn(2000,function () {
-  //   setTimeout(openApp,3500);
-  // });
-  // startupSFX.play();
-
-  openApp();
-
-
 });
-
 
 
 function createApp() {
@@ -77,6 +74,12 @@ function createApp() {
   // Get rid of the 'x' button on the menu bar
   $app.parent().find(".ui-dialog-titlebar-close").hide();
 
+  // Make the app stay centred on window shenanigans
+  $(window).resize(function() {
+    console.log("Yay");
+      $app.dialog("option", "position", { my: "center", at: "center", of: window });
+  });
+
   // Set up the slider
   $slider = $('#slider');
   $slider.slider({
@@ -95,7 +98,6 @@ function createApp() {
     labels: ['0','1','2','3','4','5','6','7','8','9','10'],
     // ⬅
   });
-  fitSliderToViewport();
 
   $instruction = $('#instruction');
 
@@ -109,12 +111,14 @@ function createApp() {
     value: progress*100
   });
 
+
+
 }
 
 function openApp() {
   $app.dialog('open');
-  chimesSFX.play();
-  music.play();
+  // chimesSFX.play();
+  // music.play();
 }
 
 function showInputDialog() {
@@ -265,21 +269,6 @@ function highlightTarget() {
 function findSelected(ui) {
   selected = ui.value;
 }
-
-
-// fitSliderToViewport()
-//
-// Called on resize. Moves the slider to the centre of the viewport.
-function fitSliderToViewport() {
-  $('#slider').offset({
-    // top: $(window).height()/2 - $('#slider').height()/2,
-    left: $(window).width()/2 - $('#slider').width()/2,
-  })
-}
-
-
-
-
 
 
 // Loading the sound effects
