@@ -33,8 +33,15 @@ var strokeRanges = [
 ];
 var currentStrokeRange;
 
-var target;
+const MAX_STROKE_SPEED_ERRORS = 3;
+const SLOW_STROKE_MIN_FRAMES = 50;
+const FAST_STROKE_MAX_FRAMES = 30;
+var desiredStrokeSpeeds = ["slow","fast","indifferent"];
+var currentDesiredStrokeSpeed = "indifferent";
+var strokeSpeedErrors = 0;
+var strokeSpeedWarnings = 0;
 
+var target;
 
 var strokes = 0;
 var currentStrokeTime = 0;
@@ -50,10 +57,19 @@ $(document).ready(function () {
   createApp();
   createInputDialog();
 
-  // openApp();
+  openApp();
 
-  // showInputDialog();
+  // startup();
 
+
+
+  // Start the update loop
+  window.requestAnimationFrame(update);
+
+});
+
+
+function startup() {
   $('#app-icon').on('click', function () {
     setTimeout(function () {
       $('#title-screen').fadeIn(100);
@@ -65,13 +81,7 @@ $(document).ready(function () {
     },500);
     startupSFX.play();
   });
-
-  // Start the update loop
-  window.requestAnimationFrame(update);
-
-});
-
-
+}
 
 // update()
 //
@@ -104,7 +114,27 @@ function update() {
       strokes++;
 
       // Check the stroke time
-      console.log(currentStrokeTime);
+      if (currentDesiredStrokeSpeed == "slow" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
+        strokeSpeedErrors++;
+        console.log("Too fast...");
+        if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
+          $messages.text("Slow down!");
+        }
+      }
+      else if (currentDesiredStrokeSpeed == "fast" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
+        strokeSpeedErrors++;
+        console.log("Too slow...");
+        if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
+          $messages.text("Faster!");
+        }
+      } else if (Math.random() < 0.1) {
+        // If they're stroking well we should occasionally change up the speed
+        currentDesiredStrokeSpeed = desiredStrokeSpeeds[Math.floor(Math.random() * desiredStrokeSpeeds.length)];
+        // We might want to make it default to fast if we're at a particular progress level?
+        if (arousal >= 0.8) {
+          currentDesiredStrokeSpeed = "fast";
+        }
+      }
 
       // Reset the stroke time
       currentStrokeTime = 0;
@@ -157,7 +187,7 @@ function slide(event,ui) {
 }
 
 
-// generateInstruction()
+// setNewStrokeRange()
 //
 // Choose a lower and upper bound for the range and tell the user
 function setNewStrokeRange() {
@@ -180,9 +210,6 @@ function setNewStrokeRange() {
 
 
 function highlightTarget() {
-  // Issue instruction
-  $instruction.text('Set me to ' + target + '.');
-
   // Clear formatting of pips
   $('.ui-slider-pip').css({
     fontWeight: 'normal',
@@ -283,12 +310,9 @@ function createApp() {
     labels: ['0','1','2','3','4','5','6','7','8','9','10'],
   });
 
-  // Remember the instructions panel
-  $instruction = $('#instruction');
-
-  // Remember the output panel
-  $output = $('#output');
-  $output.text('');
+  // Remember the messages panel
+  $messages = $('#messages');
+  $messages.text('Slide me.');
 
   // Set up the progress bar
   $progress = $('#progress');

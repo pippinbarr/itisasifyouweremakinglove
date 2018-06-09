@@ -124,32 +124,25 @@ body {
   overflow-y: hidden;
 }
 
-#outputBox {
-  height: 3em;
-}
-
 .text {
   font-family: "MS Sans Serif", Arial, sans-serif;
   font-size: 1em;
   padding: 2px;
 }
 
-#instructionBox {
-  height: 1.5em;
-}
 
-#feedbackBox {
+#messagesBox {
   width: 100%;
   border-top: solid 2px black;
   border-left: solid 2px black;
   border-right: 2px solid white;
   border-bottom: 2px solid white;
   margin-bottom: 1em;
-  height: 4em;
+  height: 3em;
   overflow-y: hidden;
 }
 
-#feedback {
+#messages {
   font-family: "MS Sans Serif", Arial, sans-serif;
   font-size: 1em;
   padding: 2px;
