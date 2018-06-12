@@ -16,6 +16,47 @@ var breatheRate = 0.5;
 var breatheVolume = 0;
 var breathDelay = 4000;
 
+var positiveFeedbacks = [
+  "That feels so good.",
+  "Mmmmmmmmm.",
+  "More please.",
+  "Oh yes.",
+  "You are so good at this.",
+  "Do not stop sliding me.",
+  "I love the way you slide me.",
+  "Keeping sliding me.",
+  "Ooohhhhhhhh.",
+  "Yes, yes, yes.",
+  "Keep going.",
+  "I love this.",
+  "You are making me feel amazing, human lover."
+];
+
+var textInputRequests = [
+  {
+    prompt: "Tell me that you love me.",
+    response: "I love you"
+  },
+  {
+    prompt: "Tell me that you need me.",
+    response: "I need you"
+  },
+  {
+    prompt: "Tell me that you want me.",
+    response: "I want you"
+  },
+  {
+    prompt: "Say my name.",
+    response: "It is as if you were making love"
+  },
+  {
+    prompt: "Tell me that this feels so good",
+    response: "This feels so good"
+  }
+];
+var MAX_TEXT_INPUT_REQUEST_ERRORS = 2;
+var currentTextInputRequestErrors = 0;
+
 var strokesRequired = [5,10,10,10,15,15,16,20,20,25];
 var currentStrokesRequired;
 
@@ -58,13 +99,14 @@ $(document).ready(function () {
 
   loadSounds();
   createApp();
-  createInputDialog();
+  createFeedbackDialog();
+  createTextInputDialog();
   breathe();
   openApp();
 
   // startup();
 
-
+  showTextInputDialog();
 
   // Start the update loop
   window.requestAnimationFrame(update);
@@ -258,12 +300,20 @@ function setNewStroke() {
     currentDesiredStrokeSpeed = "quickly";
   }
 
-  $messages.text('Slide me ' + currentDesiredStrokeSpeed + ' between ' + strokeRanges[currentStrokeRange].low + ' and ' + strokeRanges[currentStrokeRange].high);
+  $messages.text('Slide me ' + currentDesiredStrokeSpeed + ' between ' + strokeRanges[currentStrokeRange].low + ' and ' + strokeRanges[currentStrokeRange].high + '.');
 
   highlightTarget();
 
   // Feedback that a new range has been selected
   notifySFX.play();
+
+  var r = Math.random();
+  // if (r < 0.1) {
+  //   showTextInputDialog();
+  // }
+  // else if (r < 0.2) {
+  //   showFeedbackDialog();
+  // }
 }
 
 
@@ -394,19 +444,21 @@ function createApp() {
   });
 }
 
-function showInputDialog() {
+function showTextInputDialog() {
   // Trigger a mouseup on the slider to avoid the user continuing to use it
   $slider.trigger('mouseup');
-  $talk.dialog('open');
+  currentTextInputRequest = textInputRequests[Math.floor(Math.random() * textInputRequests.length)];
+  $('#text-input-request').text(currentTextInputRequest.prompt);
+  $textInput.dialog('open');
   chimesSFX.play();
 }
 
 
-function createInputDialog() {
-  $talk = $('<div id="talk"></div>');
-  $talk.append('<p id="talk-request">Tell me that you love me</p>');
-  $talk.append('<input id="talk-input"></input>');
-  $talk.dialog({
+function createTextInputDialog() {
+  $textInput = $('<div id="text-input"></div>');
+  $textInput.append('<p id="text-input-request"></p>');
+  $textInput.append('<input id="text-input-field"></input>');
+  $textInput.dialog({
     title: 'Input required',
     width: '340px',
     height: 'auto',
@@ -418,7 +470,7 @@ function createInputDialog() {
     buttons: {
       Submit: function () {
         setTimeout(function () {
-          $talk.dialog('close');
+          $textInput.dialog('close');
         },300);
       }
     },
@@ -426,23 +478,66 @@ function createInputDialog() {
       chimesSFX.play();
     },
     beforeClose: function () {
-      if ($('#talk-input').val() === 'I love you') {
-        $('#talk-input').val('');
+      // Convert the input to lower case with no punctuation
+      var inputText = $('#text-input-field').val();
+      inputText = inputText.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+      inputText = inputText.replace(/\s{2,}/g," ");
+      inputText = inputText.toLowerCase();
+      // Convert the correct response to lower case too
+      var correctResponse = currentTextInputRequest.response.toLowerCase();
+      // Compare them
+      if (inputText === correctResponse) {
+        $('#text-input-field').val('');
         dingSFX.play();
+        currentTextInputRequestErrors = 0;
         return true;
       }
       else {
-        $('#talk-input').val('');
+        $('#text-input-field').val('');
         negativeSFX.play();
-        $talk.parent().effect('shake',{
+        $textInput.parent().effect('shake',{
           direction: 'left',
           distance: 3,
           times: 5
         });
+        currentTextInputRequestErrors++;
+        if (currentTextInputRequestErrors === MAX_TEXT_INPUT_REQUEST_ERRORS) {
+          $('#text-input-request').append(" (Type: \"" + currentTextInputRequest.response + "\".)");
+        }
         return false;
       }
     },
     closeOnEscape: false
   });
-  $talk.parent().find(".ui-dialog-titlebar-close").hide();
+  $textInput.parent().find(".ui-dialog-titlebar-close").hide();
+}
+
+function createFeedbackDialog() {
+  $feedback = $('<div id="feedback"></div>');
+  $feedback.append('<p id="feedback-text">That feels so good.</p>');
+  $feedback.dialog({
+    title: 'Alert',
+    width: '340px',
+    height: 'auto',
+    position: { my: "center", at: "center", of: window },
+    resizable: false,
+    draggable: false,
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      Okay: function () {
+        setTimeout(function () {
+          $feedback.dialog('close');
+        },300);
+      }
+    },
+    beforeOpen: function () {
+      chimesSFX.play();
+    },
+    beforeClose: function () {
+      dingSFX.play();
+    },
+    closeOnEscape: false
+  });
+  $feedback.parent().find(".ui-dialog-titlebar-close").hide();
 }
