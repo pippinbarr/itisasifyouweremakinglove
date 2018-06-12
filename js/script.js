@@ -12,10 +12,16 @@ var MIN = 0;
 
 const AROUSAL_PER_STROKE = 0.01;
 const AROUSAL_ENTROPY = 0.0001;
-var arousal = 0;
+var arousal = 0.0;
+
+const ORGASM_START_FRAMES = 1000;
+var orgasmFrames = 0;
+var orgasm = false;
+var gameOver = false;
 var breatheRate = 0.5;
 var breatheVolume = 0;
 var breathDelay = 4000;
+var breathingTimer = null;
 
 var positiveFeedbackDialogs = [
   "That feels so good.",
@@ -69,6 +75,18 @@ var positiveFeedbackMessages = [
   "Don't stop.",
   "Yes, that's good.",
   "That's right, human."
+];
+
+var orgasmMessages = [
+  "111111101010101111011111111",
+  "010111100100010101010101111",
+  "010101111101001001011101000",
+  "011000101000100100000001111",
+  "010110111011010001000000000",
+  "011111110000011111110000000",
+  "011111110000100010000000101",
+  "111110000101000101111111111",
+  "011111100000010110101011111"
 ];
 
 var textInputRequests = [
@@ -136,16 +154,19 @@ const SELECTED_MINIMUM_FRAMES = 5;
 var currentlySelected = false;
 var selectedTimer = 0;
 
+var allSounds = [];
+
 $(document).ready(function () {
 
   loadSounds();
   createApp();
   createFeedbackDialog();
   createTextInputDialog();
-  breathe();
-  openApp();
+  createGameOverDialog();
+  // breathe();
+  // openApp();
 
-  // startup();
+  startup();
 
   // showTextInputDialog();
 
@@ -159,7 +180,7 @@ function breathe() {
   breatheSFX.rate(breatheRate);
   breatheSFX.volume(breatheVolume);
   breatheSFX.play();
-  setTimeout(breathe,breathDelay);
+  breathingTimer = setTimeout(breathe,breathDelay);
 }
 
 
@@ -184,11 +205,67 @@ function update() {
 
   window.requestAnimationFrame(update);
 
+  if (gameOver) {
+    return;
+  }
+
+  if (arousal >= 1.0 && orgasm) {
+    orgasmFrames = Math.max(0,orgasmFrames - 1);
+
+    var orgasmEventProbability = orgasmFrames/ORGASM_START_FRAMES;
+
+    if (Math.random() < orgasmEventProbability) {
+      if (!$('#messages').is(':animated')) {
+        setMessage(getRandom(orgasmMessages));
+      }
+    }
+    if (Math.random() < orgasmEventProbability) {
+      $slider.slider('value',Math.floor(Math.random() * 11));
+    }
+    if (Math.random() < orgasmEventProbability) {
+      $progress.progressbar('value',Math.floor(Math.random() * 100));
+    }
+    if (Math.random() < orgasmEventProbability) {
+      target = Math.floor(Math.random() * 11);
+      highlightTarget();
+    }
+    if (Math.random() < orgasmEventProbability) {
+      allSounds[Math.floor(Math.random() * allSounds.length)].play();
+    }
+    if (Math.random() < orgasmEventProbability) {
+      $('#music-on').prop('checked',Math.random() < 0.5);
+      $('#music-off').prop('checked',Math.random() < 0.5);
+    }
+
+    if (orgasmFrames == 0) {
+      $slider.slider('value',10);
+      $app.dialog('close');
+      $('#app-icon').hide();
+      for (var i = 0; i < allSounds.length; i++) {
+        allSounds[i].pause();
+      }
+      if (breathingTimer) clearTimeout(breathingTimer);
+      orgasm = false;
+      setTimeout(function () {
+        fanfareSFX.currentTime = 0;
+        fanfareSFX.play();
+        dingSFX.currentTime = 0;
+        showGameOverDialog("Thanks for playing!");
+      },2000);
+    }
+    return;
+  }
+
+  if (arousal >= 1.0) {
+    return;
+  }
+
+
   // Increase the stroke time
   if (strokeTimingOn) currentStrokeTime++;
 
   // If they're not interacting for too long
-  if (currentStrokeTime > 300) {
+  if (arousal < 1.0 && currentStrokeTime > 300) {
     arousal = Math.max(0,arousal - AROUSAL_ENTROPY);
     updateProgress();
   }
@@ -223,8 +300,19 @@ function update() {
       else {
         // Good stroke
         // Arousal goes up!
-        arousal += AROUSAL_PER_STROKE;
+        arousal = Math.min(1.0, arousal + AROUSAL_PER_STROKE);
         updateProgress();
+
+        if (arousal >= 1.0) {
+          fanfareSFX.play();
+          orgasmFrames = ORGASM_START_FRAMES;
+          breathDelay = 250;
+          breatheRate = 0.75;
+          breatheVolume = 1.0;
+          orgasm = true;
+          music.pause();
+          return;
+        }
 
         // This counts as a stroke of the slider
         strokes++;
@@ -328,6 +416,10 @@ function handleBreathing() {
 // Called when the slider is moved
 function slide(event,ui) {
 
+  if (arousal >= 1.0) {
+    return;
+  }
+
   findSelected(ui);
 
   if (selected == target) {
@@ -382,13 +474,14 @@ function setNewStroke() {
 
   strokeTimingOn = true;
 
+  // Display an input or feedback dialog
   var r = Math.random();
-  // if (r < 0.1) {
-  //   showTextInputDialog();
-  // }
-  // else if (r < 0.2) {
-  //   showFeedbackDialog();
-  // }
+  if (arousal > 0.4 && r < 0.1) {
+    showTextInputDialog();
+  }
+  else if (arousal > 0.2 && r < 0.2) {
+    showFeedbackDialog();
+  }
 }
 
 
@@ -418,6 +511,7 @@ function findSelected(ui) {
 
 function openApp() {
   $app.dialog('open');
+  breathe();
   setNewStroke();
 }
 
@@ -453,6 +547,8 @@ function loadSounds() {
   startupSFX = new Audio('audio/startup.wav');
   shutdownSFX = new Audio('audio/shutdown.wav');
   notifySFX = new Audio('audio/notify.wav');
+
+  allSounds = [chimesSFX,dingSFX,negativeSFX,fanfareSFX,clickSFX,startupSFX,shutdownSFX,notifySFX];
 }
 
 
@@ -512,10 +608,14 @@ function createApp() {
 
   // Listen for clicks on the music radio buttons
   $('#music-on').on('click',function () {
-    music.play();
+    if (!orgasm && !arousal >= 1.0) {
+      music.play();
+    }
   });
   $('#music-off').on('click',function () {
-    music.pause();
+    if (!orgasm && !arousal >= 1.0) {
+      music.pause();
+    }
   });
 }
 
@@ -620,6 +720,45 @@ function createFeedbackDialog() {
     closeOnEscape: false
   });
   $feedback.parent().find(".ui-dialog-titlebar-close").hide();
+}
+
+function createGameOverDialog() {
+  $gameover = $('<div id="game-over"></div>');
+  $gameover.append('<p id="game-over-text">Thanks for playing!</p>');
+  $gameover.dialog({
+    title: 'Game Over',
+    width: '340px',
+    height: 'auto',
+    position: { my: "center", at: "center", of: window },
+    resizable: false,
+    draggable: false,
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      Okay: function () {
+        setTimeout(function () {
+          $gameover.dialog('close');
+        },300);
+      }
+    },
+    beforeOpen: function () {
+    },
+    beforeClose: function () {
+      dingSFX.play();
+      shutdownSFX.currentTime = 0;
+      // setTimeout(function () {
+        shutdownSFX.play();
+      // },500);
+    },
+    closeOnEscape: false
+  });
+  $feedback.parent().find(".ui-dialog-titlebar-close").hide();
+}
+
+function showGameOverDialog() {
+  // Trigger a mouseup on the slider to avoid the user continuing to use it
+  $slider.trigger('mouseup');
+  $gameover.dialog('open');
 }
 
 
