@@ -11,25 +11,64 @@ var MAX = 10;
 var MIN = 0;
 
 const AROUSAL_PER_STROKE = 0.01;
+const AROUSAL_ENTROPY = 0.0001;
 var arousal = 0;
 var breatheRate = 0.5;
 var breatheVolume = 0;
 var breathDelay = 4000;
 
-var positiveFeedbacks = [
+var positiveFeedbackDialogs = [
   "That feels so good.",
-  "Mmmmmmmmm.",
   "More please.",
   "Oh yes.",
   "You are so good at this.",
   "Do not stop sliding me.",
   "I love the way you slide me.",
   "Keeping sliding me.",
-  "Ooohhhhhhhh.",
   "Yes, yes, yes.",
+  "That feels fantastic.",
   "Keep going.",
   "I love this.",
   "You are making me feel amazing, human lover."
+];
+
+var slowDownFeedbacks = [
+  'Slow down.',
+  'Go a little slower.',
+  'Slide me more slowly.',
+  'I want slower sliding right now.',
+  'Slow down a bit.',
+  'I need you to slow it down a little.',
+  'Take it easy, slow down.',
+  'There is no hurry, please slow down.',
+  'Slow it down.',
+  'Please slide me slower.',
+  'Go slower.'
+];
+
+var speedUpFeedbacks = [
+  'Faster.',
+  'Go faster.',
+  'Slide me faster.',
+  'I want you to slide me faster.',
+  'Speed up.',
+  'Speed it up.',
+  'Pick up the pace.',
+  'Speed up a bit.',
+  'Do it faster.',
+  'I need you to go faster.'
+];
+
+var positiveFeedbackMessages = [
+  "That's it.",
+  "That feels so good.",
+  "Mmmmmmmmm.",
+  "Oh yes.",
+  "I love the way you slide me.",
+  "Yes, keeping sliding.",
+  "Don't stop.",
+  "Yes, that's good.",
+  "That's right, human."
 ];
 
 var textInputRequests = [
@@ -54,7 +93,7 @@ var textInputRequests = [
     response: "This feels so good"
   }
 ];
-var MAX_TEXT_INPUT_REQUEST_ERRORS = 2;
+var MAX_TEXT_INPUT_REQUEST_ERRORS = 4;
 var currentTextInputRequestErrors = 0;
 
 var strokesRequired = [5,10,10,10,15,15,16,20,20,25];
@@ -76,12 +115,13 @@ var strokeRanges = [
   { low: 2, high: 6 },
 ];
 var currentStrokeRange;
+var currentStrokeInstruction = '';
 
 const MAX_STROKE_SPEED_ERRORS = 3;
 const SLOW_STROKE_MIN_FRAMES = 50;
 const FAST_STROKE_MAX_FRAMES = 30;
-var desiredStrokeSpeeds = ["slowly","quickly",""];
-var currentDesiredStrokeSpeed = "indifferent";
+var desiredStrokeSpeeds = ["slowly","quickly"];
+var currentDesiredStrokeSpeed = "slowly";
 var strokeSpeedErrors = 0;
 var strokeSpeedWarnings = 0;
 
@@ -89,6 +129,7 @@ var target;
 
 var strokes = 0;
 var currentStrokeTime = 0;
+var strokeTimingOn = false;
 
 var selected = 5;
 const SELECTED_MINIMUM_FRAMES = 5;
@@ -106,7 +147,7 @@ $(document).ready(function () {
 
   // startup();
 
-  showTextInputDialog();
+  // showTextInputDialog();
 
   // Start the update loop
   window.requestAnimationFrame(update);
@@ -144,7 +185,13 @@ function update() {
   window.requestAnimationFrame(update);
 
   // Increase the stroke time
-  currentStrokeTime++;
+  if (strokeTimingOn) currentStrokeTime++;
+
+  // If they're not interacting for too long
+  if (currentStrokeTime > 300) {
+    arousal = Math.max(0,arousal - AROUSAL_ENTROPY);
+    updateProgress();
+  }
 
   // Check if a pip is selected
   // (Do I need to worry about this happening behind a modal?)
@@ -153,36 +200,46 @@ function update() {
     selectedTimer++;
     // Check if it's been held long enough
     if (selectedTimer > SELECTED_MINIMUM_FRAMES) {
-      // Arousal goes up!
-      arousal += AROUSAL_PER_STROKE;
-      $progress.progressbar({
-        value: arousal * 100
-      });
-
-      handleBreathing();
-
-
-      // This counts as a stroke of the slider
-      strokes++;
 
       // Check the stroke time
       if (currentDesiredStrokeSpeed == "slowly" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
         strokeSpeedErrors++;
-        console.log("Too fast...");
+        setMessage(currentStrokeInstruction  + ' ' +  getRandom(slowDownFeedbacks));
         if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
-          $messages.text("Slow down!");
+          showFeedbackDialog(getRandom(slowDownFeedbacks));
+          strokeSpeedErrors = 1;
+          strokes = 0; // Reset strokes at this point, they need to work on it!
         }
       }
       else if (currentDesiredStrokeSpeed == "quickly" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
         strokeSpeedErrors++;
-        console.log("Too slow...");
+        setMessage(currentStrokeInstruction  + ' ' +  getRandom(speedUpFeedbacks));
         if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
-          $messages.text("Faster!");
+          showFeedbackDialog(getRandom(speedUpFeedbacks));
+          strokeSpeedErrors = 1;
+          strokes = 0; // Reset strokes at this point, they need to work on it
         }
+      }
+      else {
+        // Good stroke
+        // Arousal goes up!
+        arousal += AROUSAL_PER_STROKE;
+        updateProgress();
+
+        // This counts as a stroke of the slider
+        strokes++;
+
+        if (strokeSpeedErrors != 0 || (strokes > 2*currentStrokesRequired/3 && Math.random() < 0.25)) {
+          setMessage(currentStrokeInstruction + ' ' + getRandom(positiveFeedbackMessages));
+        }
+
+        strokeSpeedErrors = 0;
       }
 
       // Reset the stroke time
       currentStrokeTime = 0;
+
+      handleBreathing();
 
       // Feedback sound
       clickSFX.play();
@@ -211,7 +268,22 @@ function update() {
       currentlySelected = false;
     }
   }
+}
 
+function updateProgress() {
+  $progress.progressbar({
+    value: arousal * 100
+  });
+}
+
+function setMessage(text) {
+  $messages.text(text);
+  $messages.effect('highlight',{color: '#dddd33'});
+}
+
+function showFeedbackDialog(text) {
+  $('#feedback-text').text(text);
+  $feedback.dialog('open');
 }
 
 function handleBreathing() {
@@ -290,7 +362,7 @@ function setNewStroke() {
   }
 
   // If they're stroking well we should occasionally change up the speed
-  currentDesiredStrokeSpeed = desiredStrokeSpeeds[Math.floor(Math.random() * desiredStrokeSpeeds.length)];
+  currentDesiredStrokeSpeed = getRandom(desiredStrokeSpeeds);
 
   // Specific stroke speeds for low and high arousal
   if (arousal <= 0.25) {
@@ -300,12 +372,15 @@ function setNewStroke() {
     currentDesiredStrokeSpeed = "quickly";
   }
 
-  $messages.text('Slide me ' + currentDesiredStrokeSpeed + ' between ' + strokeRanges[currentStrokeRange].low + ' and ' + strokeRanges[currentStrokeRange].high + '.');
+  currentStrokeInstruction = 'Slide me ' + currentDesiredStrokeSpeed + ' between ' + strokeRanges[currentStrokeRange].low + ' and ' + strokeRanges[currentStrokeRange].high + '.';
+  $messages.text(currentStrokeInstruction);
 
   highlightTarget();
 
   // Feedback that a new range has been selected
   notifySFX.play();
+
+  strokeTimingOn = true;
 
   var r = Math.random();
   // if (r < 0.1) {
@@ -426,7 +501,7 @@ function createApp() {
 
   // Remember the messages panel
   $messages = $('#messages');
-  $messages.text('Slide me.');
+  // $messages.text('Slide me.');
 
   // Set up the progress bar
   $progress = $('#progress');
@@ -447,10 +522,11 @@ function createApp() {
 function showTextInputDialog() {
   // Trigger a mouseup on the slider to avoid the user continuing to use it
   $slider.trigger('mouseup');
-  currentTextInputRequest = textInputRequests[Math.floor(Math.random() * textInputRequests.length)];
+  currentTextInputRequest = getRandom(textInputRequests);
   $('#text-input-request').text(currentTextInputRequest.prompt);
   $textInput.dialog('open');
   chimesSFX.play();
+  strokeTimingOn = false;
 }
 
 
@@ -476,6 +552,7 @@ function createTextInputDialog() {
     },
     beforeOpen: function () {
       chimesSFX.play();
+      strokeTimingOn = false;
     },
     beforeClose: function () {
       // Convert the input to lower case with no punctuation
@@ -490,6 +567,7 @@ function createTextInputDialog() {
         $('#text-input-field').val('');
         dingSFX.play();
         currentTextInputRequestErrors = 0;
+        strokeTimingOn = true;
         return true;
       }
       else {
@@ -533,11 +611,18 @@ function createFeedbackDialog() {
     },
     beforeOpen: function () {
       chimesSFX.play();
+      strokeTimingOn = false;
     },
     beforeClose: function () {
       dingSFX.play();
+      strokeTimingOn = true;
     },
     closeOnEscape: false
   });
   $feedback.parent().find(".ui-dialog-titlebar-close").hide();
+}
+
+
+function getRandom(array) {
+  return array[Math.floor(Math.random() * array.length)];
 }
