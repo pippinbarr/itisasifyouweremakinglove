@@ -12,6 +12,9 @@ var MIN = 0;
 
 const AROUSAL_PER_STROKE = 0.01;
 var arousal = 0;
+var breatheRate = 0.5;
+var breatheVolume = 0;
+var breathDelay = 4000;
 
 var strokesRequired = [5,10,10,10,15,15,16,20,20,25];
 var currentStrokesRequired;
@@ -36,7 +39,7 @@ var currentStrokeRange;
 const MAX_STROKE_SPEED_ERRORS = 3;
 const SLOW_STROKE_MIN_FRAMES = 50;
 const FAST_STROKE_MAX_FRAMES = 30;
-var desiredStrokeSpeeds = ["slow","fast","indifferent"];
+var desiredStrokeSpeeds = ["slowly","quickly",""];
 var currentDesiredStrokeSpeed = "indifferent";
 var strokeSpeedErrors = 0;
 var strokeSpeedWarnings = 0;
@@ -56,7 +59,7 @@ $(document).ready(function () {
   loadSounds();
   createApp();
   createInputDialog();
-
+  breathe();
   openApp();
 
   // startup();
@@ -67,6 +70,14 @@ $(document).ready(function () {
   window.requestAnimationFrame(update);
 
 });
+
+
+function breathe() {
+  breatheSFX.rate(breatheRate);
+  breatheSFX.volume(breatheVolume);
+  breatheSFX.play();
+  setTimeout(breathe,breathDelay);
+}
 
 
 function startup() {
@@ -106,33 +117,25 @@ function update() {
         value: arousal * 100
       });
 
-      if (arousal >= 1.0) {
-        // Handle the orgasm!
-      }
+      handleBreathing();
+
 
       // This counts as a stroke of the slider
       strokes++;
 
       // Check the stroke time
-      if (currentDesiredStrokeSpeed == "slow" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
+      if (currentDesiredStrokeSpeed == "slowly" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
         strokeSpeedErrors++;
         console.log("Too fast...");
         if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
           $messages.text("Slow down!");
         }
       }
-      else if (currentDesiredStrokeSpeed == "fast" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
+      else if (currentDesiredStrokeSpeed == "quickly" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
         strokeSpeedErrors++;
         console.log("Too slow...");
         if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
           $messages.text("Faster!");
-        }
-      } else if (Math.random() < 0.1) {
-        // If they're stroking well we should occasionally change up the speed
-        currentDesiredStrokeSpeed = desiredStrokeSpeeds[Math.floor(Math.random() * desiredStrokeSpeeds.length)];
-        // We might want to make it default to fast if we're at a particular progress level?
-        if (arousal >= 0.8) {
-          currentDesiredStrokeSpeed = "fast";
         }
       }
 
@@ -145,7 +148,7 @@ function update() {
       // Check if this most recent slide brought us to the end of this sequence
       if (strokes >= strokesRequired[currentStrokesRequired]) {
         strokes = 0;
-        setNewStrokeRange();
+        setNewStroke();
       }
       else {
         // Check if this slide was to the upper or lower end of the range
@@ -169,6 +172,42 @@ function update() {
 
 }
 
+function handleBreathing() {
+  // Update the breathing sound to match the current arousal
+  if (arousal >= 1.0) {
+    // Handle the orgasm!
+    breathDelay = 500;
+    breatheVolume = 1.0;
+    breatheRate = 1.0;
+    return;
+  }
+  else if (arousal > 0.9) {
+    breatheRate = 1.0;
+    breatheVolume = 0.9;
+    breathDelay = 750;
+  }
+  else if (arousal > 0.75) {
+    breatheRate = 0.9;
+    breatheVolume = 0.8;
+    breathDelay = 1000;
+  }
+  else if (arousal > 0.5) {
+    breatheRate = 0.8;
+    breatheVolume = 0.7;
+    breathDelay = 2000;
+  }
+  else if (arousal > 0.25) {
+    breatheRate = 0.7;
+    breatheVolume = 0.6;
+    breathDelay = 3000;
+  }
+  else if (arousal > 0) {
+    breatheRate = 0.6;
+    breatheVolume = 0.5;
+    breathDelay = 4000;
+  }
+}
+
 
 // slide()
 //
@@ -187,20 +226,39 @@ function slide(event,ui) {
 }
 
 
-// setNewStrokeRange()
+// setNewStroke()
 //
 // Choose a lower and upper bound for the range and tell the user
-function setNewStrokeRange() {
+function setNewStroke() {
 
   currentStrokeRange = Math.floor(Math.random() * strokeRanges.length);
   currentStrokesRequired = Math.floor(Math.random() * strokesRequired.length);
 
   if (Math.random() < 0.5) {
     target = strokeRanges[currentStrokeRange].high;
+    if (target == selected) {
+      target = strokeRanges[currentStrokeRange].low;
+    }
   }
   else {
     target = strokeRanges[currentStrokeRange].low;
+    if (target == selected) {
+      target = strokeRanges[currentStrokeRange].high;
+    }
   }
+
+  // If they're stroking well we should occasionally change up the speed
+  currentDesiredStrokeSpeed = desiredStrokeSpeeds[Math.floor(Math.random() * desiredStrokeSpeeds.length)];
+
+  // Specific stroke speeds for low and high arousal
+  if (arousal <= 0.25) {
+    currentDesiredStrokeSpeed = "slowly";
+  }
+  if (arousal >= 0.8) {
+    currentDesiredStrokeSpeed = "quickly";
+  }
+
+  $messages.text('Slide me ' + currentDesiredStrokeSpeed + ' between ' + strokeRanges[currentStrokeRange].low + ' and ' + strokeRanges[currentStrokeRange].high);
 
   highlightTarget();
 
@@ -235,7 +293,7 @@ function findSelected(ui) {
 
 function openApp() {
   $app.dialog('open');
-  setNewStrokeRange();
+  setNewStroke();
 }
 
 
@@ -255,12 +313,18 @@ function loadSounds() {
     loop: true,
     volume: 0.5
   });
+  breatheSFX = new Howl({
+    src: ['audio/ir_begin.wav'],
+    // loop: true,
+    volume: 0.5,
+    rate: 0.5
+  });
+
   chimesSFX = new Audio('audio/chimes.wav');
   dingSFX = new Audio('audio/ding.wav');
   negativeSFX = new Audio('audio/chord.wav');
   fanfareSFX = new Audio('audio/tada.wav');
   clickSFX = new Audio('audio/start.wav');
-  climaxAlertSFX = new Audio('audio/ir_inter.wav');
   startupSFX = new Audio('audio/startup.wav');
   shutdownSFX = new Audio('audio/shutdown.wav');
   notifySFX = new Audio('audio/notify.wav');
