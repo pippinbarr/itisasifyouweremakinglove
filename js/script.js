@@ -1,6 +1,6 @@
 /**********************************************
 
-Slider
+It is as if you were making love
 Pippin Barr
 
 Sexy?
@@ -35,7 +35,6 @@ var positiveFeedbackDialogs = [
   "That feels fantastic.",
   "Keep going.",
   "I love this.",
-  "You are making me feel amazing, human lover."
 ];
 
 var slowDownFeedbacks = [
@@ -163,6 +162,7 @@ $(document).ready(function () {
   createFeedbackDialog();
   createTextInputDialog();
   createGameOverDialog();
+  createReadmeDialog();
   // breathe();
   // openApp();
 
@@ -190,11 +190,17 @@ function startup() {
       $('#title-screen').fadeIn(100);
       setTimeout(function () {
         $('#title-screen').fadeOut(100,function () {
-          setTimeout(openApp,500);
+          setTimeout(openApp,0);
         });
       },5000);
     },500);
     startupSFX.play();
+  });
+
+  $('#readme-icon').on('click',function () {
+    setTimeout(function () {
+      showReadmeDialog();
+    },300)
   });
 }
 
@@ -747,7 +753,7 @@ function createGameOverDialog() {
       dingSFX.play();
       shutdownSFX.currentTime = 0;
       // setTimeout(function () {
-        shutdownSFX.play();
+      shutdownSFX.play();
       // },500);
     },
     closeOnEscape: false
@@ -761,7 +767,49 @@ function showGameOverDialog() {
   $gameover.dialog('open');
 }
 
+function createReadmeDialog() {
+  $readme = $('<div id="readme"></div>');
+  $readme.append(readmeText);
+  $readme.dialog({
+    title: 'About',
+    width: '340px',
+    height: 'auto',
+    position: { my: "center", at: "center", of: window },
+    resizable: false,
+    draggable: false,
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      Okay: function () {
+        setTimeout(function () {
+          $readme.dialog('close');
+        },300);
+      }
+    },
+    beforeOpen: function () {
+    },
+    beforeClose: function () {
+      dingSFX.play();
+    },
+    closeOnEscape: false
+  });
+}
+
+function showReadmeDialog() {
+  $readme.dialog('open');
+}
 
 function getRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
+
+var readmeText = "" +
+"<p>Welcome to <i>It is as if you were making love</i>!</p>" +
+
+"<p>Although human love-making, both biological and technological, still exists in some places, most of you are uncomfortable with the idea of a human sexual partner. While masturbation, digital or analog, functions for <i>receiving</i> pleasure, the psychology of <i>giving</i> pleasure is also important.</p>" +
+
+"<p><i>It is as if you were making love</i> is an application created especially to facilitate the satisfaction of giving erotic pleasure without the distress interfacing with another person.</p>" +
+
+"<p>Feel free to launch <i>It is as if you were making love</i> at any time when existential distress about the death of human intimacy assails you. We suggest using headphones in public.</p>" +
+
+"<p>And remember: you are human, you are a love-maker.</p>"
