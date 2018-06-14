@@ -164,9 +164,9 @@ $(document).ready(function () {
   createGameOverDialog();
   createReadmeDialog();
   // breathe();
-  // openApp();
+  openApp();
 
-  startup();
+  // startup();
 
   // showTextInputDialog();
 
@@ -493,14 +493,14 @@ function setNewStroke() {
 
 function highlightTarget() {
   // Clear formatting of pips
-  $('.ui-slider-pip').css({
+  $('.ui-slider-label').css({
     fontWeight: 'normal',
     border: 'none',
     backgroundColor: 'transparent'
   });
 
   // Highlight the target pip
-  $('.ui-slider-pip-' + target).css({
+  $('.ui-slider-pip-' + target + ' .ui-slider-label').css({
     // fontWeight: 'bold',
     border: 'solid 1px black',
     backgroundColor: 'white'
@@ -585,7 +585,7 @@ function createApp() {
   // Set up the slider
   $slider = $('#slider');
   $slider.slider({
-    orientation: "vertical",
+    // orientation: "vertical",
     min: 0,
     max: 10,
     value: selected,
@@ -603,6 +603,7 @@ function createApp() {
 
   // Remember the messages panel
   $messages = $('#messages');
+
   // $messages.text('Slide me.');
 
   // Set up the progress bar
