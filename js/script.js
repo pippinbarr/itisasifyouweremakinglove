@@ -164,9 +164,9 @@ $(document).ready(function () {
   createGameOverDialog();
   createReadmeDialog();
   // breathe();
-  openApp();
+  // openApp();
 
-  // startup();
+  startup();
 
   // showTextInputDialog();
 
@@ -470,7 +470,7 @@ function setNewStroke() {
     currentDesiredStrokeSpeed = "quickly";
   }
 
-  currentStrokeInstruction = 'Slide me ' + currentDesiredStrokeSpeed + ' between ' + strokeRanges[currentStrokeRange].low + ' and ' + strokeRanges[currentStrokeRange].high + '.';
+  currentStrokeInstruction = 'Slide me ' + currentDesiredStrokeSpeed + ' between ' + (strokeRanges[currentStrokeRange].low  - 5) + ' and ' + (strokeRanges[currentStrokeRange].high - 5) + '.';
   $messages.text(currentStrokeInstruction);
 
   highlightTarget();
@@ -598,7 +598,8 @@ function createApp() {
     first: 'label',
     last: 'label',
     rest: 'label',
-    labels: ['0','1','2','3','4','5','6','7','8','9','10'],
+    // labels: ['0','1','2','3','4','5','6','7','8','9','10'],
+    labels: ['-5','-4','-3','-2','-1','0','1','2','3','4','5'],
   });
 
   // Remember the messages panel
