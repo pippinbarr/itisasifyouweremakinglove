@@ -10,8 +10,8 @@ Sexy?
 var MAX = 10;
 var MIN = 0;
 
-// const AROUSAL_PER_STROKE = 0.01;
-const AROUSAL_PER_STROKE = 0.1;
+const AROUSAL_PER_STROKE = 0.01;
+// const AROUSAL_PER_STROKE = 0.1;
 const AROUSAL_ENTROPY = 0.0001;
 var arousal = 0.0;
 
