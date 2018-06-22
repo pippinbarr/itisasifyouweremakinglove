@@ -5,7 +5,7 @@ var readmeText = [
   "<p>To support this biological and psychological need, we have developed <i>It is as if you were making love</i> ",
   "to create a usable and efficient simulation of pleasuring a sexual partner, ",
   "without the distress and distractions of a physical body to navigate.</p>",
-  "<p>Feel free to launch <i>It is as if you were making love</i> whenver you experience nagging doubts about ",
+  "<p>Feel free to launch <i>It is as if you were making love</i> whenever you experience nagging doubts about ",
   "your fundamental ability to express a sexual form of love. ",
   "We suggest using headphones when in public.</p>",
   "<p>And remember: you are human and you are a lover.</p>"
