@@ -146,4 +146,4 @@ var textInputRequests = [
   }
 ];
 
-var gameOverMessage = "That was wonderful.";
+var gameOverMessage = "<p>Arousal overflow detected!</p><p>Program: <i>It is as if you were making love</i></p><p>An arousal overflow has been detected which has overstimulated the program's internal state. The program cannot calmly continue execution and must now shut down to reset.</p>";

@@ -10,14 +10,15 @@ Sexy?
 var MAX = 10;
 var MIN = 0;
 
-const AROUSAL_PER_STROKE = 0.01;
-// const AROUSAL_PER_STROKE = 0.1;
+// const AROUSAL_PER_STROKE = 0.01;
+const AROUSAL_PER_STROKE = 0.25;
 const AROUSAL_ENTROPY = 0.0001;
 var arousal = 0.0;
 
 const ORGASM_START_FRAMES = 1000;
 var orgasmFrames = 0;
 var orgasm = false;
+var orgasmInterval = null;
 var gameOver = false;
 var breatheRate = 0.5;
 var breatheVolume = 0;
@@ -79,13 +80,13 @@ var selectedTimer = 0;
 var allSounds = [];
 
 $(document).ready(function () {
-
   loadSounds();
   createApp();
   createFeedbackDialog();
   createTextInputDialog();
   createGameOverDialog();
   createReadmeDialog();
+  createOrgasmDialog();
   // breathe();
   // openApp();
 
@@ -93,6 +94,8 @@ $(document).ready(function () {
   // showGameOverDialog();
 
   // showTextInputDialog();
+
+  // showOrgasmDialog();
 
   // Start the update loop
   window.requestAnimationFrame(update);
@@ -174,6 +177,7 @@ function setMessage(text) {
 }
 
 function showFeedbackDialog(text) {
+  chimesSFX.play();
   $('#feedback-text').text(text);
   $feedback.dialog('open');
 }
@@ -215,10 +219,14 @@ function handleBreathing() {
 }
 
 
+function mouseMoved(event) {
+}
+
 // slide()
 //
 // Called when the slider is moved
 function slide(event,ui) {
+  console.log("slide");
 
   if (arousal >= 1.0) {
     return;
@@ -295,7 +303,7 @@ function setNewStroke() {
     showTextInputDialog();
   }
   else if (arousal > 0.2 && r < 0.2) {
-    showFeedbackDialog();
+    showFeedbackDialog(getRandom(positiveMessages));
   }
 }
 
@@ -325,6 +333,10 @@ function findSelected(ui) {
 }
 
 function launchApp() {
+  for (var i = 0; i < allSounds.length; i++) {
+    allSounds[i].play();
+    allSounds[i].pause();
+  }
   $('#title-screen').fadeIn(100);
   setTimeout(function () {
     $('#title-screen').fadeOut(100,function () {
@@ -358,6 +370,8 @@ function openApp() {
   $messages.text('');
   $('#music-on').prop('checked',false);
   $('#music-off').prop('checked',true);
+
+  chimesSFX.play();
 
   $app.dialog('open');
   breathe();
@@ -503,7 +517,7 @@ function createTextInputDialog() {
       }
     },
     beforeOpen: function () {
-      chimesSFX.play();
+      // chimesSFX.play();
       strokeTimingOn = false;
     },
     beforeClose: function () {
@@ -562,7 +576,7 @@ function createFeedbackDialog() {
       }
     },
     beforeOpen: function () {
-      chimesSFX.play();
+      // chimesSFX.play();
       strokeTimingOn = false;
     },
     beforeClose: function () {
@@ -576,7 +590,7 @@ function createFeedbackDialog() {
 
 function createGameOverDialog() {
   $gameover = $('<div id="game-over"></div>');
-  $gameover.append('<p id="game-over-text">That was perfect.</p>');
+  $gameover.append('<div id="game-over-text">'+gameOverMessage+'</div>');
   $gameover.dialog({
     title: '',
     width: '340px',
@@ -594,14 +608,22 @@ function createGameOverDialog() {
       }
     },
     beforeOpen: function () {
+      // chimesSFX.play();
+      gameOver = true;
     },
     beforeClose: function () {
+      orgasm = false;
+      clearTimeout(breathingTimer);
+      clearTimeout(orgasmInterval);
+      for (var i = 0; i < allSounds.length; i++) {
+        allSounds[i].pause();
+        allSounds[i].currentTime = 0;
+      }
       dingSFX.play();
       shutdownSFX.currentTime = 0;
-      // setTimeout(function () {
       shutdownSFX.play();
+      $app.dialog('close');
       readyToPlay = true;
-      // },500);
     },
     closeOnEscape: false
   });
@@ -611,6 +633,7 @@ function createGameOverDialog() {
 function showGameOverDialog() {
   // Trigger a mouseup on the slider to avoid the user continuing to use it
   $slider.trigger('mouseup');
+  chimesSFX.play();
   $gameover.dialog('open');
 }
 
@@ -643,7 +666,81 @@ function createReadmeDialog() {
 }
 
 function showReadmeDialog() {
+  chimesSFX.play();
   $readme.dialog('open');
+}
+
+function createOrgasmDialog() {
+  $orgasm = $('<div id="orgasm"></div>');
+  $orgasm.append('<p id="orgasm-text">YES!!!!!!!!!!!!!</p>');
+  $orgasm.dialog({
+    title: 'Alert',
+    width: '340px',
+    height: 'auto',
+    position: { my: "center", at: "center", of: window },
+    resizable: false,
+    draggable: false,
+    autoOpen: false,
+    modal: true,
+    buttons: {
+      Okay: function () {
+        setTimeout(function () {
+          $orgasm.dialog('close');
+        },300);
+      }
+    },
+    beforeOpen: function () {
+      // chimesSFX.play();
+      strokeTimingOn = false;
+      console.log("Start shake...");
+    },
+    beforeClose: function () {
+      music.pause();
+      dingSFX.play();
+      for (var i = 0; i < allSounds.length; i++) {
+        allSounds[i].play();
+        allSounds[i].pause();
+      }
+      orgasmFrames = ORGASM_START_FRAMES;
+      breathDelay = 250;
+      breatheRate = 0.75;
+      breatheVolume = 1.0;
+      orgasm = true;
+      $orgasm.parent().finish();
+      clearInterval(orgasmShakeInterval);
+      orgasmInterval = setInterval(function() {
+        // if (Math.random() < orgasmEventProbability) {
+        var r = Math.random();
+        allSounds[Math.floor(r * allSounds.length)].currentTime = 0;
+        allSounds[Math.floor(r * allSounds.length)].play();
+        // }
+      },100);
+    },
+    closeOnEscape: false
+  });
+  $orgasm.parent().find(".ui-dialog-titlebar-close").hide();
+}
+
+function showOrgasmDialog() {
+  chimesSFX.play();
+  $orgasm.dialog('open');
+  console.log("Shake shake shake...");
+  $orgasm.parent().effect('shake',{
+    direction: 'left',
+    distance: 2,
+    times: 10
+  });
+  orgasmShakeInterval = setInterval(function () {
+    console.log("Shake again...?");
+    if (!$orgasm.parent().is(':animated')) {
+      console.log("Shake!");
+      $orgasm.parent().effect('shake',{
+        direction: 'left',
+        distance: 2,
+        times: 10
+      });
+    }
+  },50);
 }
 
 function getRandom(array) {
@@ -652,9 +749,25 @@ function getRandom(array) {
 
 
 function handleOrgasm() {
-  orgasmFrames = Math.max(0,orgasmFrames - 1);
+  // orgasmFrames = Math.max(0,orgasmFrames - 1);
+  orgasmFrames--;
 
-  var orgasmEventProbability = orgasmFrames/ORGASM_START_FRAMES;
+  if (!$app.parent().is(':animated')) {
+    $app.parent().effect('shake',{
+      direction: 'left',
+      distance: 10,
+      times: 4
+    });
+  }
+  // if ($gameover.parent().is(':visible') && !$gameover.parent().is(':animated')) {
+  //   $gameover.parent().effect('shake',{
+  //     direction: 'left',
+  //     distance: 4,
+  //     times: 4
+  //   });
+  // }
+  // var orgasmEventProbability = orgasmFrames/ORGASM_START_FRAMES;
+  var orgasmEventProbability = 0.9;//orgasmFrames/ORGASM_START_FRAMES;
 
   if (Math.random() < orgasmEventProbability) {
     if (!$('#messages').is(':animated')) {
@@ -671,9 +784,9 @@ function handleOrgasm() {
     target = Math.floor(Math.random() * 11);
     highlightTarget();
   }
-  if (Math.random() < orgasmEventProbability) {
-    allSounds[Math.floor(Math.random() * allSounds.length)].play();
-  }
+  // if (Math.random() < orgasmEventProbability) {
+  //   allSounds[Math.floor(Math.random() * allSounds.length)].play();
+  // }
   if (Math.random() < orgasmEventProbability) {
     $('#music-on').prop('checked',Math.random() < 0.5);
     $('#music-off').prop('checked',Math.random() < 0.5);
@@ -682,22 +795,20 @@ function handleOrgasm() {
   if (orgasmFrames == 0) {
     readyToPlay = false;
     $slider.slider('value',10);
-    $app.dialog('close');
     // $('#app-icon').hide();
     for (var i = 0; i < allSounds.length; i++) {
       allSounds[i].pause();
       allSounds[i].currentTime = 0;
     }
     music.pause();
-    clearTimeout(breathingTimer);
     breatheSFX.volume(0);
-    orgasm = false;
-    setTimeout(function () {
-      fanfareSFX.currentTime = 0;
-      fanfareSFX.play();
-      dingSFX.currentTime = 0;
-      showGameOverDialog(gameOverMessage);
-    },2000);
+    // orgasm = false;
+    // setTimeout(function () {
+    fanfareSFX.currentTime = 0;
+    fanfareSFX.play();
+    dingSFX.currentTime = 0;
+    showGameOverDialog();
+    // },2000);
   }
   return;
 }
@@ -734,13 +845,8 @@ function handleSuccessfulSelection() {
     updateProgress();
 
     if (arousal >= 1.0) {
-      fanfareSFX.play();
-      orgasmFrames = ORGASM_START_FRAMES;
-      breathDelay = 250;
-      breatheRate = 0.75;
-      breatheVolume = 1.0;
-      orgasm = true;
-      music.pause();
+      // fanfareSFX.play();
+      showOrgasmDialog();
       return;
     }
 
@@ -761,6 +867,7 @@ function handleSuccessfulSelection() {
   handleBreathing();
 
   // Feedback sound
+  clickSFX.currentTime = 0;
   clickSFX.play();
 
   // Check if this most recent slide brought us to the end of this sequence
