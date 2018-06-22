@@ -421,7 +421,7 @@ function createApp() {
   $app.dialog({
     title: 'It is as if you were making love',
     // width: '80vw',
-    width: '320px',
+    width: '300px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
     resizable: false,
@@ -502,7 +502,7 @@ function createTextInputDialog() {
   $textInput.append('<input id="text-input-field"></input>');
   $textInput.dialog({
     title: 'Input required',
-    width: '340px',
+    width: '310px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
     resizable: false,
@@ -561,7 +561,7 @@ function createFeedbackDialog() {
   $feedback.append('<p id="feedback-text">That feels so good.</p>');
   $feedback.dialog({
     title: 'Alert',
-    width: '340px',
+    width: '310px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
     resizable: false,
@@ -593,7 +593,7 @@ function createGameOverDialog() {
   $gameover.append('<div id="game-over-text">'+gameOverMessage+'</div>');
   $gameover.dialog({
     title: '',
-    width: '340px',
+    width: '310px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
     resizable: false,
@@ -642,7 +642,7 @@ function createReadmeDialog() {
   $readme.append(readmeText.join(''));
   $readme.dialog({
     title: 'About',
-    width: '340px',
+    width: '310px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
     resizable: false,
@@ -675,7 +675,7 @@ function createOrgasmDialog() {
   $orgasm.append('<p id="orgasm-text">I am almost there. Push my button!</p>');
   $orgasm.dialog({
     title: 'Climax alert',
-    width: '340px',
+    width: '310px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
     resizable: false,

@@ -61,7 +61,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
-  width: 340px;
+  width: 312px;
   border-top: 4px solid #fff;
   border-left: 4px solid #fff;
   border-bottom: 4px solid #555;
@@ -81,7 +81,7 @@ body {
   position: absolute;
   top: 20px;
   margin-top: 20px;
-  margin-left: 110px;
+  margin-left: 90px;
   width: 190px;
   border-top: 4px solid #fff;
   border-left: 4px solid #fff;
@@ -101,7 +101,7 @@ body {
   width: 190px;
   bottom: 20px;
   padding: 20px;
-  margin-left: 110px;
+  margin-left: 90px;
   text-align: right;
   font-size: 1em;
   font-weight: normal;

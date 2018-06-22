@@ -8,7 +8,7 @@ var readmeText = [
   "<p>Feel free to launch <i>It is as if you were making love</i> whenever you experience nagging doubts about ",
   "your fundamental ability to express a sexual form of love. ",
   "We suggest using headphones when in public.</p>",
-  "<p>And remember: you are human and you are a lover.</p>"
+  "<p>Remember: you are human and you are a lover.</p>"
 ];
 
 // Shown in dialog box
