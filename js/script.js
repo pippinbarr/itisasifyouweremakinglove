@@ -10,7 +10,8 @@ Sexy?
 var MAX = 10;
 var MIN = 0;
 
-const AROUSAL_PER_STROKE = 0.01;
+// const AROUSAL_PER_STROKE = 0.01;
+const AROUSAL_PER_STROKE = 0.1;
 const AROUSAL_ENTROPY = 0.0001;
 var arousal = 0.0;
 
@@ -23,93 +24,9 @@ var breatheVolume = 0;
 var breathDelay = 4000;
 var breathingTimer = null;
 
-var positiveFeedbackDialogs = [
-  "That feels so good.",
-  "More please.",
-  "Oh yes.",
-  "You are so good at this.",
-  "Do not stop sliding me.",
-  "I love the way you slide me.",
-  "Keeping sliding me.",
-  "Yes, yes, yes.",
-  "That feels fantastic.",
-  "Keep going.",
-  "I love this.",
-];
+var readyToPlay = true;
 
-var slowDownFeedbacks = [
-  'Slow down.',
-  'Go a little slower.',
-  'Slide me more slowly.',
-  'I want slower sliding right now.',
-  'Slow down a bit.',
-  'I need you to slow it down a little.',
-  'Take it easy, slow down.',
-  'There is no hurry, please slow down.',
-  'Slow it down.',
-  'Please slide me slower.',
-  'Go slower.'
-];
 
-var speedUpFeedbacks = [
-  'Faster.',
-  'Go faster.',
-  'Slide me faster.',
-  'I want you to slide me faster.',
-  'Speed up.',
-  'Speed it up.',
-  'Pick up the pace.',
-  'Speed up a bit.',
-  'Do it faster.',
-  'I need you to go faster.'
-];
-
-var positiveFeedbackMessages = [
-  "That's it.",
-  "That feels so good.",
-  "Mmmmmmmmm.",
-  "Oh yes.",
-  "I love the way you slide me.",
-  "Yes, keeping sliding.",
-  "Don't stop.",
-  "Yes, that's good.",
-  "That's right, human."
-];
-
-var orgasmMessages = [
-  "111111101010101111011111111",
-  "010111100100010101010101111",
-  "010101111101001001011101000",
-  "011000101000100100000001111",
-  "010110111011010001000000000",
-  "011111110000011111110000000",
-  "011111110000100010000000101",
-  "111110000101000101111111111",
-  "011111100000010110101011111"
-];
-
-var textInputRequests = [
-  {
-    prompt: "Tell me that you love me.",
-    response: "I love you"
-  },
-  {
-    prompt: "Tell me that you need me.",
-    response: "I need you"
-  },
-  {
-    prompt: "Tell me that you want me.",
-    response: "I want you"
-  },
-  {
-    prompt: "Say my name.",
-    response: "It is as if you were making love"
-  },
-  {
-    prompt: "Tell me that this feels so good",
-    response: "This feels so good"
-  }
-];
 var MAX_TEXT_INPUT_REQUEST_ERRORS = 4;
 var currentTextInputRequestErrors = 0;
 
@@ -135,8 +52,8 @@ var currentStrokeRange;
 var currentStrokeInstruction = '';
 
 const MAX_STROKE_SPEED_ERRORS = 3;
-const SLOW_STROKE_MIN_FRAMES = 50;
-const FAST_STROKE_MAX_FRAMES = 30;
+const SLOW_STROKE_MIN_FRAMES = 40;
+const FAST_STROKE_MAX_FRAMES = 40;
 var desiredStrokeSpeeds = ["slowly","quickly"];
 var currentDesiredStrokeSpeed = "slowly";
 var strokeSpeedErrors = 0;
@@ -167,6 +84,7 @@ $(document).ready(function () {
   // openApp();
 
   startup();
+  // showGameOverDialog();
 
   // showTextInputDialog();
 
@@ -186,21 +104,19 @@ function breathe() {
 
 function startup() {
   $('#app-icon').on('click', function () {
-    setTimeout(function () {
-      $('#title-screen').fadeIn(100);
+    if (readyToPlay) {
       setTimeout(function () {
-        $('#title-screen').fadeOut(100,function () {
-          setTimeout(openApp,0);
-        });
-      },5000);
-    },500);
-    startupSFX.play();
+        launchApp();
+      },500);
+    }
   });
 
   $('#readme-icon').on('click',function () {
-    setTimeout(function () {
-      showReadmeDialog();
-    },300)
+    if (readyToPlay) {
+      setTimeout(function () {
+        showReadmeDialog();
+      },300)
+    }
   });
 }
 
@@ -244,19 +160,23 @@ function update() {
     }
 
     if (orgasmFrames == 0) {
+      readyToPlay = false;
       $slider.slider('value',10);
       $app.dialog('close');
-      $('#app-icon').hide();
+      // $('#app-icon').hide();
       for (var i = 0; i < allSounds.length; i++) {
         allSounds[i].pause();
+        allSounds[i].currentTime = 0;
       }
-      if (breathingTimer) clearTimeout(breathingTimer);
+      music.pause();
+      clearTimeout(breathingTimer);
+      breatheSFX.volume(0);
       orgasm = false;
       setTimeout(function () {
         fanfareSFX.currentTime = 0;
         fanfareSFX.play();
         dingSFX.currentTime = 0;
-        showGameOverDialog("Thanks for playing!");
+        showGameOverDialog(gameOverMessage);
       },2000);
     }
     return;
@@ -284,21 +204,23 @@ function update() {
     // Check if it's been held long enough
     if (selectedTimer > SELECTED_MINIMUM_FRAMES) {
 
+      var pleaseOrPeriod = (Math.random() < 0.5) ? ", please." : ".";
+
       // Check the stroke time
       if (currentDesiredStrokeSpeed == "slowly" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
         strokeSpeedErrors++;
-        setMessage(currentStrokeInstruction  + ' ' +  getRandom(slowDownFeedbacks));
+        setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeSlowlyFeedbacks) + pleaseOrPeriod);
         if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
-          showFeedbackDialog(getRandom(slowDownFeedbacks));
+          showFeedbackDialog(getRandom(negativeSlowlyFeedbacks));
           strokeSpeedErrors = 1;
           strokes = 0; // Reset strokes at this point, they need to work on it!
         }
       }
       else if (currentDesiredStrokeSpeed == "quickly" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
         strokeSpeedErrors++;
-        setMessage(currentStrokeInstruction  + ' ' +  getRandom(speedUpFeedbacks));
+        setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeQuicklyFeedbacks) + pleaseOrPeriod);
         if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
-          showFeedbackDialog(getRandom(speedUpFeedbacks));
+          showFeedbackDialog(getRandom(negativeQuicklyFeedbacks));
           strokeSpeedErrors = 1;
           strokes = 0; // Reset strokes at this point, they need to work on it
         }
@@ -323,8 +245,9 @@ function update() {
         // This counts as a stroke of the slider
         strokes++;
 
+        // If they're doing well then sometimes give them a positive message in the message area
         if (strokeSpeedErrors != 0 || (strokes > 2*currentStrokesRequired/3 && Math.random() < 0.25)) {
-          setMessage(currentStrokeInstruction + ' ' + getRandom(positiveFeedbackMessages));
+          setMessage(currentStrokeInstruction + ' ' + getRandom(positiveMessages));
         }
 
         strokeSpeedErrors = 0;
@@ -515,7 +438,41 @@ function findSelected(ui) {
   selected = ui.value;
 }
 
+function launchApp() {
+  $('#title-screen').fadeIn(100);
+  setTimeout(function () {
+    $('#title-screen').fadeOut(100,function () {
+      setTimeout(openApp,0);
+    });
+  },5000);
+  startupSFX.play();
+}
+
+// openApp
+//
+// Open the app! Reset all the properties so you can play.
 function openApp() {
+
+  arousal = 0;
+  breatheRate = 0.5;
+  breatheVolume = 0;
+  breathDelay = 4000;
+  breathingTimer = null;
+  currentTextInputRequestErrors = 0;
+  strokeSpeedErrors = 0;
+  strokeSpeedWarnings = 0;
+  strokes = 0;
+  currentStrokeTime = 0;
+  selected = 5;
+  currentlySelected = false;
+  selectedTimer = 0;
+  $progress.progressbar('value',0);
+  $slider.slider('value',5);
+
+  $messages.text('');
+  $('#music-on').prop('checked',false);
+  $('#music-off').prop('checked',true);
+
   $app.dialog('open');
   breathe();
   setNewStroke();
@@ -604,6 +561,7 @@ function createApp() {
 
   // Remember the messages panel
   $messages = $('#messages');
+  $messages.text('');
 
   // $messages.text('Slide me.');
 
@@ -732,9 +690,9 @@ function createFeedbackDialog() {
 
 function createGameOverDialog() {
   $gameover = $('<div id="game-over"></div>');
-  $gameover.append('<p id="game-over-text">Thanks for playing!</p>');
+  $gameover.append('<p id="game-over-text">That was perfect.</p>');
   $gameover.dialog({
-    title: 'Game Over',
+    title: '',
     width: '340px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
@@ -756,6 +714,7 @@ function createGameOverDialog() {
       shutdownSFX.currentTime = 0;
       // setTimeout(function () {
       shutdownSFX.play();
+      readyToPlay = true;
       // },500);
     },
     closeOnEscape: false
@@ -771,7 +730,7 @@ function showGameOverDialog() {
 
 function createReadmeDialog() {
   $readme = $('<div id="readme"></div>');
-  $readme.append(readmeText);
+  $readme.append(readmeText.join(''));
   $readme.dialog({
     title: 'About',
     width: '340px',
@@ -804,14 +763,3 @@ function showReadmeDialog() {
 function getRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
-
-var readmeText = "" +
-"<p>Welcome to <i>It is as if you were making love</i>!</p>" +
-
-"<p>Although human love-making, both biological and technological, still exists in some places, most of you are uncomfortable with the idea of a human sexual partner. While masturbation, digital or analog, functions for <i>receiving</i> pleasure, the psychology of <i>giving</i> pleasure is also important.</p>" +
-
-"<p><i>It is as if you were making love</i> is an application created especially to facilitate the satisfaction of giving erotic pleasure without the distress interfacing with another person.</p>" +
-
-"<p>Feel free to launch <i>It is as if you were making love</i> at any time when existential distress about the death of human intimacy assails you. We suggest using headphones in public.</p>" +
-
-"<p>And remember: you are human, you are a love-maker.</p>"
