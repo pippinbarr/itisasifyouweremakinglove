@@ -24,7 +24,13 @@ var breatheVolume = 0;
 var breathDelay = 4000;
 var breathingTimer = null;
 
+var selectionClickTimer = null;
+var MIN_SELECTION_TIME = 250;
+var MAX_IDLE_TIME = 5000;
+
 var readyToPlay = true;
+var idle = false;
+var idleTimer = null;
 
 
 var MAX_TEXT_INPUT_REQUEST_ERRORS = 4;
@@ -132,158 +138,27 @@ function update() {
   }
 
   if (arousal >= 1.0 && orgasm) {
-    orgasmFrames = Math.max(0,orgasmFrames - 1);
-
-    var orgasmEventProbability = orgasmFrames/ORGASM_START_FRAMES;
-
-    if (Math.random() < orgasmEventProbability) {
-      if (!$('#messages').is(':animated')) {
-        setMessage(getRandom(orgasmMessages));
-      }
-    }
-    if (Math.random() < orgasmEventProbability) {
-      $slider.slider('value',Math.floor(Math.random() * 11));
-    }
-    if (Math.random() < orgasmEventProbability) {
-      $progress.progressbar('value',Math.floor(Math.random() * 100));
-    }
-    if (Math.random() < orgasmEventProbability) {
-      target = Math.floor(Math.random() * 11);
-      highlightTarget();
-    }
-    if (Math.random() < orgasmEventProbability) {
-      allSounds[Math.floor(Math.random() * allSounds.length)].play();
-    }
-    if (Math.random() < orgasmEventProbability) {
-      $('#music-on').prop('checked',Math.random() < 0.5);
-      $('#music-off').prop('checked',Math.random() < 0.5);
-    }
-
-    if (orgasmFrames == 0) {
-      readyToPlay = false;
-      $slider.slider('value',10);
-      $app.dialog('close');
-      // $('#app-icon').hide();
-      for (var i = 0; i < allSounds.length; i++) {
-        allSounds[i].pause();
-        allSounds[i].currentTime = 0;
-      }
-      music.pause();
-      clearTimeout(breathingTimer);
-      breatheSFX.volume(0);
-      orgasm = false;
-      setTimeout(function () {
-        fanfareSFX.currentTime = 0;
-        fanfareSFX.play();
-        dingSFX.currentTime = 0;
-        showGameOverDialog(gameOverMessage);
-      },2000);
-    }
-    return;
+    handleOrgasm();
   }
 
   if (arousal >= 1.0) {
     return;
   }
 
-
-  // Increase the stroke time
-  if (strokeTimingOn) currentStrokeTime++;
-
   // If they're not interacting for too long
-  if (arousal < 1.0 && currentStrokeTime > 300) {
+  if (idle) {
     arousal = Math.max(0,arousal - AROUSAL_ENTROPY);
     updateProgress();
   }
 
-  // Check if a pip is selected
-  // (Do I need to worry about this happening behind a modal?)
-  if (currentlySelected) {
-    // Increase the time the selection has been held
-    selectedTimer++;
-    // Check if it's been held long enough
-    if (selectedTimer > SELECTED_MINIMUM_FRAMES) {
+  // If no pip is selected then we need to clear the timer
+  if (!currentlySelected && selectionClickTimer != null) {
+    clearTimeout(selectionClickTimer);
+    selectionClickTimer = null;
+  }
 
-      var pleaseOrPeriod = (Math.random() < 0.5) ? ", please." : ".";
-
-      // Check the stroke time
-      if (currentDesiredStrokeSpeed == "slowly" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
-        strokeSpeedErrors++;
-        setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeSlowlyFeedbacks) + pleaseOrPeriod);
-        if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
-          showFeedbackDialog(getRandom(negativeSlowlyFeedbacks));
-          strokeSpeedErrors = 1;
-          strokes = 0; // Reset strokes at this point, they need to work on it!
-        }
-      }
-      else if (currentDesiredStrokeSpeed == "quickly" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
-        strokeSpeedErrors++;
-        setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeQuicklyFeedbacks) + pleaseOrPeriod);
-        if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
-          showFeedbackDialog(getRandom(negativeQuicklyFeedbacks));
-          strokeSpeedErrors = 1;
-          strokes = 0; // Reset strokes at this point, they need to work on it
-        }
-      }
-      else {
-        // Good stroke
-        // Arousal goes up!
-        arousal = Math.min(1.0, arousal + AROUSAL_PER_STROKE);
-        updateProgress();
-
-        if (arousal >= 1.0) {
-          fanfareSFX.play();
-          orgasmFrames = ORGASM_START_FRAMES;
-          breathDelay = 250;
-          breatheRate = 0.75;
-          breatheVolume = 1.0;
-          orgasm = true;
-          music.pause();
-          return;
-        }
-
-        // This counts as a stroke of the slider
-        strokes++;
-
-        // If they're doing well then sometimes give them a positive message in the message area
-        if (strokeSpeedErrors != 0 || (strokes > 2*currentStrokesRequired/3 && Math.random() < 0.25)) {
-          setMessage(currentStrokeInstruction + ' ' + getRandom(positiveMessages));
-        }
-
-        strokeSpeedErrors = 0;
-      }
-
-      // Reset the stroke time
-      currentStrokeTime = 0;
-
-      handleBreathing();
-
-      // Feedback sound
-      clickSFX.play();
-
-      // Check if this most recent slide brought us to the end of this sequence
-      if (strokes >= strokesRequired[currentStrokesRequired]) {
-        strokes = 0;
-        setNewStroke();
-      }
-      else {
-        // Check if this slide was to the upper or lower end of the range
-        // and swap the target based on that
-        if (target == strokeRanges[currentStrokeRange].high) {
-          target = strokeRanges[currentStrokeRange].low;
-        }
-        else {
-          target = strokeRanges[currentStrokeRange].high;
-        }
-      }
-
-      // Highlight the new target
-      highlightTarget();
-
-      // Reset the timer and the selection tracking
-      selectedTimer = 0;
-      currentlySelected = false;
-    }
+  if (strokeTimingOn) {
+    currentStrokeTime++;
   }
 }
 
@@ -349,14 +224,25 @@ function slide(event,ui) {
     return;
   }
 
+  idle = false;
+  if (idleTimer != null) clearTimeout(idleTimer);
+  idleTimer = setTimeout(function() {
+    idle = true;
+  },MAX_IDLE_TIME);
+
   findSelected(ui);
 
   if (selected == target) {
     currentlySelected = true;
-  }
-  else {
-    currentlySelected = false;
-    selectedTimer = 0;
+    if (selectionClickTimer == null) {
+      selectionClickTimer = setTimeout(function () {
+        handleSuccessfulSelection();
+      },MIN_SELECTION_TIME);
+    }
+    else {
+      currentlySelected = false;
+      selectedTimer = 0;
+    }
   }
 }
 
@@ -762,4 +648,141 @@ function showReadmeDialog() {
 
 function getRandom(array) {
   return array[Math.floor(Math.random() * array.length)];
+}
+
+
+function handleOrgasm() {
+  orgasmFrames = Math.max(0,orgasmFrames - 1);
+
+  var orgasmEventProbability = orgasmFrames/ORGASM_START_FRAMES;
+
+  if (Math.random() < orgasmEventProbability) {
+    if (!$('#messages').is(':animated')) {
+      setMessage(getRandom(orgasmMessages));
+    }
+  }
+  if (Math.random() < orgasmEventProbability) {
+    $slider.slider('value',Math.floor(Math.random() * 11));
+  }
+  if (Math.random() < orgasmEventProbability) {
+    $progress.progressbar('value',Math.floor(Math.random() * 100));
+  }
+  if (Math.random() < orgasmEventProbability) {
+    target = Math.floor(Math.random() * 11);
+    highlightTarget();
+  }
+  if (Math.random() < orgasmEventProbability) {
+    allSounds[Math.floor(Math.random() * allSounds.length)].play();
+  }
+  if (Math.random() < orgasmEventProbability) {
+    $('#music-on').prop('checked',Math.random() < 0.5);
+    $('#music-off').prop('checked',Math.random() < 0.5);
+  }
+
+  if (orgasmFrames == 0) {
+    readyToPlay = false;
+    $slider.slider('value',10);
+    $app.dialog('close');
+    // $('#app-icon').hide();
+    for (var i = 0; i < allSounds.length; i++) {
+      allSounds[i].pause();
+      allSounds[i].currentTime = 0;
+    }
+    music.pause();
+    clearTimeout(breathingTimer);
+    breatheSFX.volume(0);
+    orgasm = false;
+    setTimeout(function () {
+      fanfareSFX.currentTime = 0;
+      fanfareSFX.play();
+      dingSFX.currentTime = 0;
+      showGameOverDialog(gameOverMessage);
+    },2000);
+  }
+  return;
+}
+
+
+function handleSuccessfulSelection() {
+  var pleaseOrPeriod = (Math.random() < 0.5) ? ", please." : ".";
+
+  console.log("Stroke time: " + currentStrokeTime);
+
+  // Check the stroke time
+  if (currentDesiredStrokeSpeed == "slowly" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
+    strokeSpeedErrors++;
+    setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeSlowlyFeedbacks) + pleaseOrPeriod);
+    if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
+      showFeedbackDialog(getRandom(negativeSlowlyFeedbacks));
+      strokeSpeedErrors = 1;
+      strokes = 0; // Reset strokes at this point, they need to work on it!
+    }
+  }
+  else if (currentDesiredStrokeSpeed == "quickly" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
+    strokeSpeedErrors++;
+    setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeQuicklyFeedbacks) + pleaseOrPeriod);
+    if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
+      showFeedbackDialog(getRandom(negativeQuicklyFeedbacks));
+      strokeSpeedErrors = 1;
+      strokes = 0; // Reset strokes at this point, they need to work on it
+    }
+  }
+  else {
+    // Good stroke
+    // Arousal goes up!
+    arousal = Math.min(1.0, arousal + AROUSAL_PER_STROKE);
+    updateProgress();
+
+    if (arousal >= 1.0) {
+      fanfareSFX.play();
+      orgasmFrames = ORGASM_START_FRAMES;
+      breathDelay = 250;
+      breatheRate = 0.75;
+      breatheVolume = 1.0;
+      orgasm = true;
+      music.pause();
+      return;
+    }
+
+    // This counts as a stroke of the slider
+    strokes++;
+
+    // If they're doing well then sometimes give them a positive message in the message area
+    if (strokeSpeedErrors != 0 || (strokes > 2*currentStrokesRequired/3 && Math.random() < 0.25)) {
+      setMessage(currentStrokeInstruction + ' ' + getRandom(positiveMessages));
+    }
+
+    strokeSpeedErrors = 0;
+  }
+
+  // Reset the stroke time
+  currentStrokeTime = 0;
+
+  handleBreathing();
+
+  // Feedback sound
+  clickSFX.play();
+
+  // Check if this most recent slide brought us to the end of this sequence
+  if (strokes >= strokesRequired[currentStrokesRequired]) {
+    strokes = 0;
+    setNewStroke();
+  }
+  else {
+    // Check if this slide was to the upper or lower end of the range
+    // and swap the target based on that
+    if (target == strokeRanges[currentStrokeRange].high) {
+      target = strokeRanges[currentStrokeRange].low;
+    }
+    else {
+      target = strokeRanges[currentStrokeRange].high;
+    }
+  }
+
+  // Highlight the new target
+  highlightTarget();
+
+  // Reset the timer and the selection tracking
+  selectedTimer = 0;
+  currentlySelected = false;
 }
