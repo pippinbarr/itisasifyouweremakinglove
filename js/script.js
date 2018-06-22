@@ -10,8 +10,8 @@ Sexy?
 var MAX = 10;
 var MIN = 0;
 
-// const AROUSAL_PER_STROKE = 0.01;
-const AROUSAL_PER_STROKE = 0.25;
+const AROUSAL_PER_STROKE = 0.01;
+// const AROUSAL_PER_STROKE = 0.25;
 const AROUSAL_ENTROPY = 0.0001;
 var arousal = 0.0;
 
@@ -589,7 +589,7 @@ function createFeedbackDialog() {
 }
 
 function createGameOverDialog() {
-  $gameover = $('<div id="game-over"></div>');
+  $gameover = $('<div id="game-over">Petite mort</div>');
   $gameover.append('<div id="game-over-text">'+gameOverMessage+'</div>');
   $gameover.dialog({
     title: '',
@@ -672,9 +672,9 @@ function showReadmeDialog() {
 
 function createOrgasmDialog() {
   $orgasm = $('<div id="orgasm"></div>');
-  $orgasm.append('<p id="orgasm-text">YES!!!!!!!!!!!!!</p>');
+  $orgasm.append('<p id="orgasm-text">I am almost there. Push my button!</p>');
   $orgasm.dialog({
-    title: 'Alert',
+    title: 'Climax alert',
     width: '340px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
