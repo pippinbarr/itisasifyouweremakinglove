@@ -589,10 +589,10 @@ function createFeedbackDialog() {
 }
 
 function createGameOverDialog() {
-  $gameover = $('<div id="game-over">Petite mort</div>');
+  $gameover = $('<div id="game-over"></div>');
   $gameover.append('<div id="game-over-text">'+gameOverMessage+'</div>');
   $gameover.dialog({
-    title: '',
+    title: 'Petite mort',
     width: '310px',
     height: 'auto',
     position: { my: "center", at: "center", of: window },
