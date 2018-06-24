@@ -298,13 +298,13 @@ function setNewStroke() {
   strokeTimingOn = true;
 
   // Display an input or feedback dialog
-  var r = Math.random();
-  if (arousal > 0.4 && r < 0.1) {
-    showTextInputDialog();
-  }
-  else if (arousal > 0.2 && r < 0.2) {
-    showFeedbackDialog(getRandom(positiveMessages));
-  }
+  // var r = Math.random();
+  // if (arousal > 0.4 && r < 0.1) {
+  //   showTextInputDialog();
+  // }
+  // else if (arousal > 0.2 && r < 0.2) {
+  //   showFeedbackDialog(getRandom(positiveMessages));
+  // }
 }
 
 

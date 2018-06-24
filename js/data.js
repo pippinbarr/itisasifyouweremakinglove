@@ -1,12 +1,12 @@
 var readmeText = [
   "<p>Welcome to <i>It is as if you were making love</i>!</p>",
-  "<p>We understand that you maintain a desire to give sexual pleasure, ",
-  "even as physical intimacy between humans is almost completely at an end.</p>",
-  "<p>To support this biological and psychological need, we have developed <i>It is as if you were making love</i> ",
-  "to create a usable and efficient simulation of pleasuring a sexual partner, ",
-  "without the distress and distractions of a physical body to navigate.</p>",
+  "<p>While physical intimacy between humans is almost extinct, ",
+  "we understand you maintain a biological and psychological need to give erotic pleasure.</p>",
+  "<p>We have created <i>It is as if you were making love</i> ",
+  "to provide a usable and efficient experience of pleasuring a partner ",
+  "without the distress and dissatisfactions of a physical body to navigate.</p>",
   "<p>Feel free to launch <i>It is as if you were making love</i> whenever you experience nagging doubts about ",
-  "your fundamental ability to express a sexual form of love. ",
+  "your identity as a sexual being. ",
   "We suggest using headphones when in public.</p>",
   "<p>Remember: you are human and you are a lover.</p>"
 ];
