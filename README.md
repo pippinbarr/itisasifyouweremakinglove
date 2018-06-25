@@ -1,5 +1,9 @@
 # _It is as if you were making love_
 
+_Physical intimacy is a thing of the past! Finally! But wait! Why do you feel so alone?! You want to touch someone?! Make them feel good?! But you don't really want to actually have to touch someone?! You don't really want to deal with another human?! Well you're in luck! With this new application it is as if you were making love!_
+
+---
+
 _It is as if you were making love_ is the sequel to [_It is as if you were doing work_](https://github.com/pippinbarr/itisasifyouweredoingwork). It is an application from a near future in which humans have lost the interest and will for physical sex with other humans. The application provides you with the experience of erotically pleasuring someone without the involvement of another human being, replacing that role with a user-interface.
 
 #### [Play Online](https://pippinbarr.github.io/itisasifyouweremakinglove/) (mobile- and tablet-friendly)
