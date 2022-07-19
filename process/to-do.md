@@ -1,0 +1,62 @@
+# To dos
+
+- Create blog post
+- Add to TAG and Speculative Play
+- Send to press etc.
+
+---
+
+- ~~Create basic annyang voice commands (2018-04-12 13:54, Thursday)~~
+- ~~Create basic "slide between x and y" instructions randomly generated (2018-04-12 13:35, Thursday)~~
+- ~~Create acknowledgment of correct sliding (2018-04-12 13:35, Thursday)~~
+- ~~Create basic connection between synthesis (e.g. tone) and sliding (2018-04-12 13:35, Thursday)~~
+- ~~Make the version with the slider in its own little window (test in mobile)~~
+- ~~Add a text panel to indicate instruction modifiers and other phrases~~
+- ~~Add a progress bar (need to think about how this is going to look)~~
+- ~~__NAH__ Add numbers to the pips? (I feel like this is not very win95-y, but otherwise how do you know what the setting it?)~~
+- ~~__IT'S BETTER IN THE PANEL I THINK__Highlight the setting to slider to on the slider (try this over the version where it's in the panel)~~
+- ~~Add some kind of timing requirement to stay on a selection before moving on to avoid mindless stroking~~
+- ~~Add a popup dialog with a text to type in and test on mobile (make it modal)~~
+- ~~Write a journal entry about sounds to figure out how they'll work~~
+- ~~Add sounds from Win 2000~~
+- ~~__INDEED YOU NEED AN EVENT TO TRIGGER IT__Check iOS audio triggering issues on actual device~~
+- ~~Add an application icon to load the game (gives us the music trigger too for iOS)~~
+- ~~Add radio/checkbox/button for toggling 'mood music' on and off~~
+- ~~Add array for strokes-per-range to emphasise higher stroke counts~~
+- ~~Add array for stroke ranges to emphasise specific ranges~~
+- ~~Add stroke timing (just frames between correct settings makes enough sense)~~
+- ~~Shift arousal tracking to per-stroke, make sure notify is per range-change~~
+- ~~Make a proper title card for when it's 'loading'~~
+- ~~Add speed requirement (just slow, normal, fast perhaps - or even instead of normal just 'indifferent') and checking (maybe you have some number of 'bad' strokes before it notifies you, reset at each preference change)~~
+- ~~Pretty sure it's possible to have a new range start with the selection you're already on? Bad. Easy fix too.~~
+- ~~Add breathing sound fading in to progress (first approximation can just be a straight progress=volume)~~
+- ~~__HAVING PLAYED MORE I THINK I DISAGREE WITH THIS NOW__ Think about speed in relation to range size (slow on a short range kind of sucks)~~
+- ~~Add ability to notify player of desired pace and range (e.g. in instruction try 'Set me between 0 and 10 in fast alternation')~~
+- ~~Add array of text-input requests and correct answers~~
+- ~~Add array of no-input dialog texts that are rewards for good play? (Bit weird if they interrupt, maybe not?)~~
+- ~~Add ability to notify player of failure to match pace (e.g. in output), which builds to dialog notification~~
+- ~~Add ability to notify player of good performance (maybe based on error rate) in output and in dialog~~
+- ~~Consider a cooldown after all? Just a simple arousal going down over time, not as a punishment, but as an expressive possibility for the player?~~
+- ~~The basic orgasm~~
+  - ~~Add ending as dialog box (tada, thanks), closing the dialog plays shutdown sound and goes back to desktop~~
+  - ~~Add sound constellation to ending~~
+  - ~~Add slider value twitching to ending~~
+  - ~~Add diminishing of ending~~
+- ~~__NO__ Add idea of application needing a cool-down (an hour or so?)?~~
+- ~~__NAH__ Add idea of setting a next date?~~
+- ~~Add a readme.txt to the desktop that contains diegetic information about the experience~~
+- ~~Speed up the slow? Slow down the fast? (Different values for mobile?)~~
+- ~~__NAH FUCK OFF__ Pips on both sides for mobile? "Handedness" as a UI element to position them? (ha ha, but probably really not enough room in the UI)~~
+- ~~Work on the language a lot~~
+- ~~__YOU KNOW WHAT? NO. IT'S PLAYABLE AS IS I BELIEVE? THOUGH SHOULD DOUBLE-CHECK ON ACTUAL DEVICE SHIT__ Try to deal with the screen size of the iPhone 5/SE (sigh)~~
+- ~~Check how well it renders on my phone~~
+- ~~Consider issue of height of About (even on my iPhone when the full browser UI is visible you can't see the full about, though you can see the full app) - smaller text? less text?~~
+- ~~__NOPE__ Can you bear trying to restyle jQuery version of radio buttons to have them look more 'authentic'? (Almost certainly not.)~~
+- ~~Check actual visibility of UI on iPhone SE (it it too long vertically? How fucked am I on the SE?)~~
+- ~~Think about sound issues on iOS - test when and how you can trigger sounds in slide event (guess it's maybe a version of mouse-moved?)~~
+- ~~__DID IT__ Consider removing positive feedback and input dialogs as too distracting~~
+- ~~__THE ABOVE SHOULD ELIMINATE THIS ERROR__ Fix glitch where you can end up with a feedback dialog still visible during the end game, confusing things and creating dual modals (this would be eliminated by the above decision if made)~~
+- ~~__SURE__ Make a trailer~~
+- ~~__NO NEED, IT'S RAINING NOW.__ Pray for rain~~
+- ~~Take screenshots~~
+- ~~Write the press kit~~
