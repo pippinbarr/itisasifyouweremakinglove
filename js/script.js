@@ -70,6 +70,7 @@ var target;
 
 var strokes = 0;
 var currentStrokeTime = 0;
+var lastUpdateTime = performance.now();
 var strokeTimingOn = false;
 
 var selected = 5;
@@ -132,7 +133,7 @@ function startup() {
 // update()
 //
 // Called every frame
-function update() {
+function update(currentTime) {
 
   window.requestAnimationFrame(update);
 
@@ -161,7 +162,9 @@ function update() {
   }
 
   if (strokeTimingOn) {
-    currentStrokeTime++;
+    var deltaTime = (currentTime - lastUpdateTime) / 1000; // time in seconds between frames
+    currentStrokeTime += 60 * deltaTime;  // at 60 fps, currentStrokeTime changes by 1 per frame
+    lastUpdateTime = currentTime;
   }
 }
 
