@@ -61,6 +61,7 @@ var currentStrokeInstruction = '';
 const MAX_STROKE_SPEED_ERRORS = 3;
 const SLOW_STROKE_MIN_FRAMES = 40;
 const FAST_STROKE_MAX_FRAMES = 40;
+const STROKE_FRAME_EPSILON = 1/13; // 1/13th of a 60hz frame, chosen because 13 is prime and this is just under half of a 360hz frame
 var desiredStrokeSpeeds = ["slowly","quickly"];
 var currentDesiredStrokeSpeed = "slowly";
 var strokeSpeedErrors = 0;
@@ -823,7 +824,7 @@ function handleSuccessfulSelection() {
   console.log("Stroke time: " + currentStrokeTime);
 
   // Check the stroke time
-  if (currentDesiredStrokeSpeed == "slowly" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES) {
+  if (currentDesiredStrokeSpeed == "slowly" && currentStrokeTime < SLOW_STROKE_MIN_FRAMES - STROKE_FRAME_EPSILON) {
     strokeSpeedErrors++;
     setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeSlowlyFeedbacks) + pleaseOrPeriod);
     if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
@@ -832,7 +833,7 @@ function handleSuccessfulSelection() {
       strokes = 0; // Reset strokes at this point, they need to work on it!
     }
   }
-  else if (currentDesiredStrokeSpeed == "quickly" && currentStrokeTime > FAST_STROKE_MAX_FRAMES) {
+  else if (currentDesiredStrokeSpeed == "quickly" && currentStrokeTime > FAST_STROKE_MAX_FRAMES + STROKE_FRAME_EPSILON) {
     strokeSpeedErrors++;
     setMessage(currentStrokeInstruction  + ' ' +  getRandom(negativeQuicklyFeedbacks) + pleaseOrPeriod);
     if (strokeSpeedErrors > MAX_STROKE_SPEED_ERRORS) {
